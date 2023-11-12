@@ -1,2 +1,3 @@
-# zktoro-web
-Website for zkToro project - Chainlink Hackathon
+# zktoro-ui
+
+zkToro UI project with Next.js and React
