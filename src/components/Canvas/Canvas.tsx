@@ -3,7 +3,6 @@
 import {
   DndContext,
   DragEndEvent,
-  Over,
   UniqueIdentifier,
   useDraggable,
   useDroppable,
@@ -11,18 +10,21 @@ import {
 import styles from "./Canvas.module.css";
 import { Box, Button, Flex } from "@radix-ui/themes";
 import { PropsWithChildren, useCallback, useMemo, useState } from "react";
-import { useStrategy } from "@/providers/StrategyProvider/StrategyProvider";
+import { PreviewSection } from "../sections/PreviewSection";
+import { SaveSection } from "../sections/SaveSection";
+import { ConfigurationSection } from "../sections/ConfigurationSection";
 
 export const Canvas = () => {
   return (
     <Box p="4" className={styles.canvasContainer}>
       <Flex className={styles.canvas} direction="column">
-        <Flex className={styles.canvas} direction="row">
+        <Flex direction="row">
           <ModulesSection />
           <CanvasSection />
           <ConfigurationSection />
         </Flex>
-        <Flex>
+        <Flex direction="column">
+          <PreviewSection />
           <SaveSection />
         </Flex>
       </Flex>
@@ -30,69 +32,7 @@ export const Canvas = () => {
   );
 };
 
-const SaveSection = () => {
-  return (
-    <Box p="4" grow="1">
-      <Flex className={styles.saveSection} p="6" direction="column" gap="4">
-        <Box className="">
-          <BackTestingChart></BackTestingChart>
-        </Box>
-        <Flex gap="3">
-          <Button>Save</Button>
-          <Button>Upload</Button>
-        </Flex>
-      </Flex>
-    </Box>
-  );
-};
-
-const BackTestingChart = () => {
-  const { backtestStatus } = useStrategy();
-  let content = "Backtesting chart";
-  if (backtestStatus.loading) {
-    content = "Loading...";
-  } else if (backtestStatus.error) {
-    content = "Error";
-  } else if (backtestStatus.data) {
-    content = backtestStatus.data;
-  }
-  return (
-    <Box className={styles.backTestingChart} p="4" grow="1">
-      <Flex direction="column" align="center">
-        {content}
-      </Flex>
-    </Box>
-  );
-};
-
-const ConfigurationSection = () => {
-  const { backtestStatus, onBacktest } = useStrategy();
-  const handleBacktest = useCallback(() => {
-    onBacktest();
-  }, [onBacktest]);
-  return (
-    <Box p="4">
-      <Flex
-        className={styles.configurationSection}
-        p="6"
-        direction="column"
-        gap="4"
-      >
-        <Button>Configuration 1</Button>
-        <Button>Configuration 2</Button>
-        <Button>Configuration 3</Button>
-        <Button>Configuration 4</Button>
-        <Button>Configuration 5</Button>
-      </Flex>
-      <Flex p="6">
-        <Button onClick={handleBacktest}>
-          {backtestStatus.loading ? "..." : "Backtest"}
-        </Button>
-      </Flex>
-    </Box>
-  );
-};
-
+// For now this stays here until I see how drag and drop works properly.
 const ModulesSection = () => {
   return (
     <Box p="4">
@@ -107,11 +47,7 @@ const ModulesSection = () => {
   );
 };
 
-/**
- * Example brought from
- * https://github.com/clauderic/dnd-kit
- * storybooks
- */
+// For now this stays here until I see how drag and drop works properly.
 const CanvasSection = () => {
   const [parent, setParent] = useState<UniqueIdentifier | null>(null);
   const draggableBox = useMemo(
