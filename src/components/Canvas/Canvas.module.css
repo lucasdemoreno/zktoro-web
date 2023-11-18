@@ -27,7 +27,7 @@
 
 .configurationSection {
   background-color: var(--cyan-3);
-  color: var(--cyan-2);
+  /* color: var(--cyan-2); */
   border-radius: var(--radius-3);
 }
 

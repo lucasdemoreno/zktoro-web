@@ -1,28 +1,104 @@
-import { Box, Button, Flex } from "@radix-ui/themes";
+import { Box, Button, Flex, Text, TextField } from "@radix-ui/themes";
 import styles from "../Canvas/Canvas.module.css";
 import { useCallback } from "react";
-import { useStrategy } from "@/providers/StrategyProvider/StrategyProvider";
+import {
+  Configuration,
+  useStrategy,
+} from "@/providers/StrategyProvider/StrategyProvider";
 
 export const ConfigurationSection = () => {
-  const { backtestStatus, onBacktest } = useStrategy();
+  const { backtestStatus, onBacktest, configuration, onConfigurationChange } =
+    useStrategy();
   const handleBacktest = useCallback(() => {
+    // TODO: Validate that this configuration is okay.
+    console.log(configuration);
     onBacktest();
-  }, [onBacktest]);
+  }, [onBacktest, configuration]);
+
+  const handleChange = useCallback(
+    (field: keyof Configuration) =>
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newConfiguration = { ...configuration, [field]: e.target.value };
+        onConfigurationChange(newConfiguration);
+        return;
+      },
+    [configuration, onConfigurationChange]
+  );
+
   return (
     <Box p="4">
       <Flex
         className={styles.configurationSection}
-        p="6"
+        p="3"
         direction="column"
-        gap="4"
+        gap="1"
       >
-        <Button>Configuration 1</Button>
-        <Button>Configuration 2</Button>
-        <Button>Configuration 3</Button>
-        <Button>Configuration 4</Button>
-        <Button>Configuration 5</Button>
+        <Box>
+          <Text size="1">Lifespan</Text>
+          <TextField.Input
+            size="1"
+            onChange={handleChange("lifespan")}
+            placeholder="1"
+          />
+        </Box>
+        <Box>
+          <Text size="1">Max Liquidity</Text>
+          <TextField.Input
+            size="1"
+            onChange={handleChange("maxLiquidity")}
+            placeholder="10000"
+          />
+        </Box>
+        <Box>
+          <Text size="1">Author</Text>
+          <TextField.Input
+            size="1"
+            onChange={handleChange("author")}
+            placeholder=""
+          />
+        </Box>
+        <Box>
+          <Text size="1">Profitability</Text>
+          <TextField.Input
+            size="1"
+            onChange={handleChange("profitability")}
+            placeholder="5%"
+          />
+        </Box>
+        <Box>
+          <Text size="1">Sharpe Ratio</Text>
+          <TextField.Input
+            size="1"
+            onChange={handleChange("sharpeRatio")}
+            placeholder="1.2"
+          />
+        </Box>
+        <Box>
+          <Text size="1">Standard Deviation</Text>
+          <TextField.Input
+            size="1"
+            onChange={handleChange("standardDeviation")}
+            placeholder="0.2"
+          />
+        </Box>
+        <Box>
+          <Text size="1">Max Drawdown</Text>
+          <TextField.Input
+            size="1"
+            onChange={handleChange("maxDrawdown")}
+            placeholder="1000"
+          />
+        </Box>
+        <Box>
+          <Text size="1">Frequency</Text>
+          <TextField.Input
+            size="1"
+            onChange={handleChange("frequency")}
+            placeholder="3"
+          />
+        </Box>
       </Flex>
-      <Flex p="6">
+      <Flex p="3" direction="row-reverse">
         <Button onClick={handleBacktest}>
           {backtestStatus.loading ? "..." : "Backtest"}
         </Button>
