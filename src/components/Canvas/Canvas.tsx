@@ -11,25 +11,16 @@ import {
 import styles from "./Canvas.module.css";
 import { Box, Button, Flex } from "@radix-ui/themes";
 import { PropsWithChildren, useCallback, useMemo, useState } from "react";
-import { StrategyConfiguration } from "@/app/workspace/page";
+import { useStrategy } from "@/providers/StrategyProvider/StrategyProvider";
 
-type CanvasProps = {
-  configuration: StrategyConfiguration;
-  setConfiguration: (config: StrategyConfiguration) => void;
-};
-
-export const Canvas = (props: CanvasProps) => {
-  const { configuration, setConfiguration } = props;
+export const Canvas = () => {
   return (
     <Box p="4" className={styles.canvasContainer}>
       <Flex className={styles.canvas} direction="column">
         <Flex className={styles.canvas} direction="row">
           <ModulesSection />
           <CanvasSection />
-          <ConfigurationSection
-            configuration={configuration}
-            setConfiguration={setConfiguration}
-          />
+          <ConfigurationSection />
         </Flex>
         <Flex>
           <SaveSection />
@@ -46,30 +37,39 @@ const SaveSection = () => {
         <Box className="">
           <BackTestingChart></BackTestingChart>
         </Box>
-        <Box>
+        <Flex gap="3">
           <Button>Save</Button>
-        </Box>
+          <Button>Upload</Button>
+        </Flex>
       </Flex>
     </Box>
   );
 };
 
 const BackTestingChart = () => {
+  const { backtestStatus } = useStrategy();
+  let content = "Backtesting chart";
+  if (backtestStatus.loading) {
+    content = "Loading...";
+  } else if (backtestStatus.error) {
+    content = "Error";
+  } else if (backtestStatus.data) {
+    content = backtestStatus.data;
+  }
   return (
     <Box className={styles.backTestingChart} p="4" grow="1">
       <Flex direction="column" align="center">
-        Backtesting chart
+        {content}
       </Flex>
     </Box>
   );
 };
 
-type ConfigurationSectionProps = {
-  configuration: StrategyConfiguration;
-  setConfiguration: (config: StrategyConfiguration) => void;
-};
-
-const ConfigurationSection = (props: ConfigurationSectionProps) => {
+const ConfigurationSection = () => {
+  const { backtestStatus, onBacktest } = useStrategy();
+  const handleBacktest = useCallback(() => {
+    onBacktest();
+  }, [onBacktest]);
   return (
     <Box p="4">
       <Flex
@@ -83,6 +83,11 @@ const ConfigurationSection = (props: ConfigurationSectionProps) => {
         <Button>Configuration 3</Button>
         <Button>Configuration 4</Button>
         <Button>Configuration 5</Button>
+      </Flex>
+      <Flex p="6">
+        <Button onClick={handleBacktest}>
+          {backtestStatus.loading ? "..." : "Backtest"}
+        </Button>
       </Flex>
     </Box>
   );
