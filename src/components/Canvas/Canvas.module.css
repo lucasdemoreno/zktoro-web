@@ -3,10 +3,32 @@
   height: 1000px;
 }
 .canvas {
-  background-color: var(--cyan-9);
+  background-color: var(--cyan-4);
   border-radius: var(--radius-3);
-  width: 100%;
-  height: 100%;
+}
+
+.modulesSection {
+  background-color: var(--cyan-3);
+  color: var(--cyan-2);
+  border-radius: var(--radius-3);
+}
+
+.saveSection {
+  color: var(--cyan-2);
+  border-radius: var(--radius-3);
+}
+
+.backTestingChart {
+  background-color: var(--cyan-12);
+  color: var(--cyan-2);
+  border-radius: var(--radius-3);
+  min-height: 300px;
+}
+
+.configurationSection {
+  background-color: var(--cyan-3);
+  color: var(--cyan-2);
+  border-radius: var(--radius-3);
 }
 
 .draggable {
@@ -17,7 +39,7 @@
 
 .droppable {
   width: 200px;
-  height: 200px;
-  background-color: var(--cyan-4);
+  height: 100px;
+  background-color: var(--cyan-9);
   border-radius: var(--radius-3);
 }

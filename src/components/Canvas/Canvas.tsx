@@ -9,15 +9,95 @@ import {
   useDroppable,
 } from "@dnd-kit/core";
 import styles from "./Canvas.module.css";
-import { Box, Flex } from "@radix-ui/themes";
+import { Box, Button, Flex } from "@radix-ui/themes";
 import { PropsWithChildren, useCallback, useMemo, useState } from "react";
+import { StrategyConfiguration } from "@/app/workspace/page";
 
-export const Canvas = () => {
+type CanvasProps = {
+  configuration: StrategyConfiguration;
+  setConfiguration: (config: StrategyConfiguration) => void;
+};
+
+export const Canvas = (props: CanvasProps) => {
+  const { configuration, setConfiguration } = props;
   return (
     <Box p="4" className={styles.canvasContainer}>
-      <Box className={styles.canvas}>
-        <CanvasArea />
-      </Box>
+      <Flex className={styles.canvas} direction="column">
+        <Flex className={styles.canvas} direction="row">
+          <ModulesSection />
+          <CanvasSection />
+          <ConfigurationSection
+            configuration={configuration}
+            setConfiguration={setConfiguration}
+          />
+        </Flex>
+        <Flex>
+          <SaveSection />
+        </Flex>
+      </Flex>
+    </Box>
+  );
+};
+
+const SaveSection = () => {
+  return (
+    <Box p="4" grow="1">
+      <Flex className={styles.saveSection} p="6" direction="column" gap="4">
+        <Box className="">
+          <BackTestingChart></BackTestingChart>
+        </Box>
+        <Box>
+          <Button>Save</Button>
+        </Box>
+      </Flex>
+    </Box>
+  );
+};
+
+const BackTestingChart = () => {
+  return (
+    <Box className={styles.backTestingChart} p="4" grow="1">
+      <Flex direction="column" align="center">
+        Backtesting chart
+      </Flex>
+    </Box>
+  );
+};
+
+type ConfigurationSectionProps = {
+  configuration: StrategyConfiguration;
+  setConfiguration: (config: StrategyConfiguration) => void;
+};
+
+const ConfigurationSection = (props: ConfigurationSectionProps) => {
+  return (
+    <Box p="4">
+      <Flex
+        className={styles.configurationSection}
+        p="6"
+        direction="column"
+        gap="4"
+      >
+        <Button>Configuration 1</Button>
+        <Button>Configuration 2</Button>
+        <Button>Configuration 3</Button>
+        <Button>Configuration 4</Button>
+        <Button>Configuration 5</Button>
+      </Flex>
+    </Box>
+  );
+};
+
+const ModulesSection = () => {
+  return (
+    <Box p="4">
+      <Flex className={styles.modulesSection} p="6" direction="column" gap="4">
+        <Button>Module 1</Button>
+        <Button>Module 2</Button>
+        <Button>Module 3</Button>
+        <Button>Module 4</Button>
+        <Button>Module 5</Button>
+      </Flex>
     </Box>
   );
 };
@@ -27,7 +107,7 @@ export const Canvas = () => {
  * https://github.com/clauderic/dnd-kit
  * storybooks
  */
-const CanvasArea = () => {
+const CanvasSection = () => {
   const [parent, setParent] = useState<UniqueIdentifier | null>(null);
   const draggableBox = useMemo(
     () => <Draggable id="draggable">Drag me</Draggable>,
@@ -45,7 +125,7 @@ const CanvasArea = () => {
   }, []);
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <Box className={styles.canvasArea} p="6">
+      <Box className={styles.canvasSection} p="6" grow="1">
         {/* The box was not dropped in any container */}
         {parent === null ? draggableBox : null}
         {droppableIds.map((id) => {
@@ -102,9 +182,9 @@ const Draggable = ({ children, id }: PropsWithChildren<{ id: string }>) => {
       {...listeners}
       {...attributes}
       className={styles.draggable}
-      p="3"
+      p="2"
       display="inline-block"
-      m="6"
+      m="2"
     >
       <Flex justify="center" align="center">
         {children}

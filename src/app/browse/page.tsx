@@ -1,7 +1,6 @@
-import { Canvas } from "@/components/Canvas/Canvas";
 import { StrategyCard } from "@/components/StrategyCard/StrategyCard";
 import { Topbar } from "@/components/Topbar/Topbar";
-import { Card, Flex, Grid, Heading, Inset, Section } from "@radix-ui/themes";
+import { Flex, Grid, Heading, Section } from "@radix-ui/themes";
 
 export default function Browse() {
   return (
