@@ -1,14 +1,14 @@
+import { Canvas } from "@/components/Canvas/Canvas";
 import { Topbar } from "@/components/Topbar/Topbar";
+import { Flex, Section } from "@radix-ui/themes";
 
-import { Section, Heading, Flex } from "@radix-ui/themes";
-
-export default function Home() {
+export default function Workspace() {
   return (
     <main>
       <Topbar />
       <Section p="2">
         <Flex direction="column" align="center">
-          <Heading size="8">Welcome to the zktoro</Heading>
+          <Canvas />
         </Flex>
       </Section>
     </main>

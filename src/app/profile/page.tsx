@@ -1,14 +1,14 @@
 import { Canvas } from "@/components/Canvas/Canvas";
 import { Topbar } from "@/components/Topbar/Topbar";
-import { Flex, Section } from "@radix-ui/themes";
+import { Flex, Heading, Section } from "@radix-ui/themes";
 
-export default function Playground() {
+export default function Profile() {
   return (
     <main>
       <Topbar />
       <Section p="2">
         <Flex direction="column" align="center">
-          <Canvas />
+          <Heading size="8">Profile page</Heading>
         </Flex>
       </Section>
     </main>
