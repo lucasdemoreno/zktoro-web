@@ -8,19 +8,28 @@ import {
   useDroppable,
 } from "@dnd-kit/core";
 import styles from "./Canvas.module.css";
-import { Box, Button, Flex } from "@radix-ui/themes";
+import { Badge, Box, Button, Flex } from "@radix-ui/themes";
 import { PropsWithChildren, useCallback, useMemo, useState } from "react";
 import { PreviewSection } from "../sections/PreviewSection";
 import { SaveSection } from "../sections/SaveSection";
 import { ConfigurationSection } from "../sections/ConfigurationSection";
+import {
+  ProgramProvider,
+  StatementType,
+  useProgram,
+} from "@/providers/ProgramProvider/ProgramProvider";
 
 export const Canvas = () => {
   return (
     <Box p="4" className={styles.canvasContainer}>
       <Flex className={styles.canvas} direction="column">
         <Flex direction="row">
-          <ModulesSection />
-          <CanvasSection />
+          <ProgramProvider>
+            <DndArea>
+              <ModulesSection />
+              <CanvasSection />
+            </DndArea>
+          </ProgramProvider>
           <ConfigurationSection />
         </Flex>
         <Flex direction="column">
@@ -32,16 +41,41 @@ export const Canvas = () => {
   );
 };
 
+const DndArea = ({ children }: PropsWithChildren<{}>) => {
+  const { statements, onStatementsChange } = useProgram();
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { over, active } = event;
+      const draggedStatement = active.data.current;
+      if (over?.id === "new-statement" && draggedStatement) {
+        // We need more state in the statement for later.
+        // The swap statement needs to know which tokens are being swapped.
+        onStatementsChange([
+          ...statements,
+          { type: draggedStatement.type, data: draggedStatement.data },
+        ]);
+      }
+    },
+    [statements, onStatementsChange]
+  );
+
+  return <DndContext onDragEnd={handleDragEnd}>{children}</DndContext>;
+};
+
 // For now this stays here until I see how drag and drop works properly.
 const ModulesSection = () => {
   return (
     <Box p="4">
-      <Flex className={styles.modulesSection} p="6" direction="column" gap="4">
-        <Button>Module 1</Button>
-        <Button>Module 2</Button>
-        <Button>Module 3</Button>
-        <Button>Module 4</Button>
-        <Button>Module 5</Button>
+      <Flex className={styles.modulesSection} p="4" direction="column" gap="4">
+        <Draggable id="send" type={StatementType.SEND}>
+          Send
+        </Draggable>
+        <Draggable id="swap" type={StatementType.SWAP}>
+          Swap
+        </Draggable>
+        <Draggable id="if/else" type={StatementType.IF_ELSE}>
+          If / Else
+        </Draggable>
       </Flex>
     </Box>
   );
@@ -49,35 +83,23 @@ const ModulesSection = () => {
 
 // For now this stays here until I see how drag and drop works properly.
 const CanvasSection = () => {
-  const [parent, setParent] = useState<UniqueIdentifier | null>(null);
-  const draggableBox = useMemo(
-    () => <Draggable id="draggable">Drag me</Draggable>,
-    []
-  );
-  const droppableIds = ["A", "B", "C"];
+  const { statements } = useProgram();
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { over } = event;
-    if (over) {
-      setParent(over.id);
-    } else {
-      setParent(null);
-    }
-  }, []);
   return (
-    <DndContext onDragEnd={handleDragEnd}>
-      <Box className={styles.canvasSection} p="6" grow="1">
-        {/* The box was not dropped in any container */}
-        {parent === null ? draggableBox : null}
-        {droppableIds.map((id) => {
-          return (
-            <Droppable key={id} id={id}>
-              {parent === id ? draggableBox : `${id} - Drop here`}
-            </Droppable>
-          );
-        })}
-      </Box>
-    </DndContext>
+    <Box className={styles.canvasSection} p="6" grow="1">
+      {statements.map((statement, index) => {
+        return (
+          <Draggable
+            key={index}
+            id={`${index}-${statement.type}`}
+            type={statement.type}
+          >
+            {statement.type}
+          </Draggable>
+        );
+      })}
+      <Droppable id="new-statement">{`Drop new statement here`}</Droppable>
+    </Box>
   );
 };
 
@@ -90,23 +112,30 @@ const Droppable = ({ children, id }: PropsWithChildren<{ id: string }>) => {
   };
 
   return (
-    <Box
-      ref={setNodeRef}
-      style={style}
-      className={styles.droppable}
-      p="3"
-      m="6"
-    >
-      <Flex justify="center" align="center" shrink="0">
+    <Box m="2">
+      <Box
+        ref={setNodeRef}
+        style={style}
+        className={styles.droppable}
+        display="inline-block"
+        p="4"
+      >
         {children}
-      </Flex>
+      </Box>
     </Box>
   );
 };
 
-const Draggable = ({ children, id }: PropsWithChildren<{ id: string }>) => {
+const Draggable = ({
+  children,
+  id,
+  type,
+}: PropsWithChildren<{ id: string; type: StatementType }>) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id,
+    data: {
+      type,
+    },
   });
 
   // Might be a problem performance-wise.
@@ -117,19 +146,18 @@ const Draggable = ({ children, id }: PropsWithChildren<{ id: string }>) => {
     : undefined;
 
   return (
-    <Box
-      ref={setNodeRef}
-      style={style}
-      {...listeners}
-      {...attributes}
-      className={styles.draggable}
-      p="2"
-      display="inline-block"
-      m="2"
-    >
-      <Flex justify="center" align="center">
+    <Box m="2">
+      <Badge
+        ref={setNodeRef}
+        style={style}
+        {...listeners}
+        {...attributes}
+        className={styles.draggable}
+        variant="solid"
+        size="2"
+      >
         {children}
-      </Flex>
+      </Badge>
     </Box>
   );
 };

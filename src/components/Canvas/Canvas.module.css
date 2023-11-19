@@ -31,15 +31,16 @@
   border-radius: var(--radius-3);
 }
 
+/* Drap and drop styles */
+
 .draggable {
   background-color: var(--cyan-12);
   color: var(--cyan-2);
   border-radius: var(--radius-3);
+  cursor: pointer;
 }
 
 .droppable {
-  width: 200px;
-  height: 100px;
-  background-color: var(--cyan-9);
   border-radius: var(--radius-3);
+  border: 1px dashed var(--accent-7);
 }
