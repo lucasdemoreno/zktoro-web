@@ -11,9 +11,8 @@ export const ConfigurationSection = () => {
     useStrategy();
   const handleBacktest = useCallback(() => {
     // TODO: Validate that this configuration is okay.
-    console.log(configuration);
     onBacktest();
-  }, [onBacktest, configuration]);
+  }, [onBacktest]);
 
   const handleChange = useCallback(
     (field: keyof Configuration) =>

@@ -1,23 +1,17 @@
 import { PropsWithChildren, createContext, useContext, useState } from "react";
+import { Statement } from "./Statements";
 
 type ProgramContextValue = {
   statements: Statement[];
   onStatementsChange: (statements: Statement[]) => void;
+  onStatementRemove: (statement: Statement) => void;
 };
-
-export type Statement = {
-  type: StatementType;
-  data: any; // it will be depending on each type of statement.
-};
-
-export enum StatementType {
-  SEND = "SEND",
-  SWAP = "SWAP",
-  IF_ELSE = "IF_ELSE",
-}
 
 export const ProgramProvider = ({ children }: PropsWithChildren) => {
   const [statements, setStatements] = useState<Statement[]>([]);
+  const onStatementRemove = (statement: Statement) => {
+    setStatements(statements.filter((s) => s.id !== statement.id));
+  };
 
   const onStatementsChange = (statements: Statement[]) => {
     setStatements(statements);
@@ -28,6 +22,7 @@ export const ProgramProvider = ({ children }: PropsWithChildren) => {
       value={{
         statements,
         onStatementsChange,
+        onStatementRemove,
       }}
     >
       {children}
@@ -38,6 +33,7 @@ export const ProgramProvider = ({ children }: PropsWithChildren) => {
 export const ProgramContext = createContext<ProgramContextValue>({
   statements: [],
   onStatementsChange: () => {},
+  onStatementRemove: () => {},
 });
 
 export function useProgram() {
