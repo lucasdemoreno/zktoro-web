@@ -42,18 +42,35 @@ export type IfElseStatement = {
   label: string;
   id: string;
   data: null | {
-    condition: Condition;
+    condition: null | Condition;
+    // For referencing each other when deleting
+    elseStatement: null | ElseStatement;
     ifStatements: Statement[];
+  };
+};
+
+export type ElseStatement = {
+  type: StatementType.ELSE;
+  label: string;
+  id: string;
+  data: null | {
+    // For referencing each other when deleting
+    ifStatement: null | IfElseStatement;
     elseStatements: Statement[];
   };
 };
 
-export type Statement = SendStatement | SwapStatement | IfElseStatement;
+export type Statement =
+  | SendStatement
+  | SwapStatement
+  | IfElseStatement
+  | ElseStatement;
 
 export enum StatementType {
   SEND = "SEND",
   SWAP = "SWAP",
   IF_ELSE = "IF_ELSE",
+  ELSE = "ELSE",
 }
 
 export function isEventStatement(
@@ -62,7 +79,8 @@ export function isEventStatement(
   return (
     eventData?.type === StatementType.SEND ||
     eventData?.type === StatementType.SWAP ||
-    eventData?.type === StatementType.IF_ELSE
+    eventData?.type === StatementType.IF_ELSE ||
+    eventData?.type === StatementType.ELSE
   );
 }
 
