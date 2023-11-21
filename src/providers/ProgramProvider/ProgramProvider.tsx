@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 import {
+  ComparisonOperator,
   ElseStatement,
   IfElseStatement,
   Statement,
@@ -9,8 +10,9 @@ import {
 
 type ProgramContextValue = {
   statements: Statement[];
-  onStatementsChange: (statement: Statement, parentId: string) => void;
+  onStatementsAdded: (statement: Statement, parentId: string) => void;
   onStatementRemove: (statement: Statement) => void;
+  onStatementUpdate: (statement: Statement) => void;
 };
 
 function createStatementsFromDropped(statement: Statement): Statement[] {
@@ -35,7 +37,11 @@ function createStatementsFromDropped(statement: Statement): Statement[] {
     data: {
       ...statement.data,
       ifStatements: [],
-      condition: null,
+      condition: {
+        left: 2,
+        right: 1,
+        operator: ComparisonOperator.GREATER_THAN,
+      },
       elseStatement,
     },
   };
@@ -136,7 +142,7 @@ export const ProgramProvider = ({ children }: PropsWithChildren) => {
   };
 
   // There is a bug here somewhere adding nested statements
-  const onStatementsChange = (statement: Statement, dropId: string) => {
+  const onStatementsAdded = (statement: Statement, dropId: string) => {
     // The split can give multiple items in the array.
     // If the added statement is inside a nested if else, won't work
     const [_drop, parentId] = dropId.split("/");
@@ -161,12 +167,22 @@ export const ProgramProvider = ({ children }: PropsWithChildren) => {
     setStatements(statements.concat([]));
   };
 
+  const onStatementUpdate = (statement: Statement) => {
+    const found = statements.find((s) => s.id === statement.id);
+    if (found) {
+      found.label = statement.label;
+      found.data = statement.data;
+    }
+    setStatements(statements.concat([]));
+  };
+
   return (
     <ProgramContext.Provider
       value={{
         statements,
-        onStatementsChange,
+        onStatementsAdded,
         onStatementRemove,
+        onStatementUpdate,
       }}
     >
       {children}
@@ -176,8 +192,9 @@ export const ProgramProvider = ({ children }: PropsWithChildren) => {
 
 export const ProgramContext = createContext<ProgramContextValue>({
   statements: [],
-  onStatementsChange: () => {},
+  onStatementsAdded: () => {},
   onStatementRemove: () => {},
+  onStatementUpdate: () => {},
 });
 
 export function useProgram() {

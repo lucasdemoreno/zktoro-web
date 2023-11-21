@@ -2,12 +2,18 @@
 
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import styles from "./Canvas.module.css";
-import { Badge, Box, Button } from "@radix-ui/themes";
+import { Badge, Box, Button, Select, Text, TextField } from "@radix-ui/themes";
 import { PropsWithChildren, useCallback } from "react";
 
 import { useProgram } from "@/providers/ProgramProvider/ProgramProvider";
 import { TrashIcon } from "@radix-ui/react-icons";
-import { Statement } from "@/providers/ProgramProvider/Statements";
+import {
+  ComparisonOperator,
+  IfElseStatement,
+  SendStatement,
+  Statement,
+  SwapStatement,
+} from "@/providers/ProgramProvider/Statements";
 
 export const Droppable = ({
   children,
@@ -83,7 +89,7 @@ export const DraggableStatement = ({
         variant="solid"
         size="2"
       >
-        {statement.label}
+        <StatementBlock statement={statement} canUpdate={canRemove} />
         {canRemove && (
           <Button
             onClick={handleRemove}
@@ -95,5 +101,155 @@ export const DraggableStatement = ({
         )}
       </Badge>
     </Box>
+  );
+};
+
+const StatementBlock = ({
+  statement,
+  canUpdate,
+}: {
+  statement: Statement;
+  canUpdate: boolean;
+}) => {
+  if (!canUpdate) {
+    return <Text>{statement.label}</Text>;
+  }
+  if (statement.type === "SEND") {
+    return <SendBlock statement={statement} />;
+  }
+
+  if (statement.type === "SWAP") {
+    return <SwapBlock statement={statement} />;
+  }
+
+  if (statement.type === "IF_ELSE") {
+    return <IFBlock statement={statement} />;
+  }
+
+  if (statement.type === "ELSE") {
+    return <Text>{statement.label}</Text>;
+  }
+};
+
+const SwapBlock = ({ statement }: { statement: SwapStatement }) => {
+  return (
+    <>
+      <Text>{statement.label}</Text>
+      {/* This would be a more complex expression */}
+      <TextField.Input size="1" placeholder="USDC" />
+      <Text>to</Text>
+      <TextField.Input size="1" placeholder="WETH" />
+      <Text>on</Text>
+      {/* This would be a more complex expression */}
+      <TextField.Input size="1" placeholder="Optimism" />
+    </>
+  );
+};
+
+const SendBlock = ({ statement }: { statement: SendStatement }) => {
+  return (
+    <>
+      <Text>{statement.label}</Text>
+      {/* This would be a more complex expression */}
+      <TextField.Input size="1" placeholder="WETH" />
+      <Text>from</Text>
+      <TextField.Input size="1" placeholder="Polygon" />
+      <Text>to</Text>
+      {/* This would be a more complex expression */}
+      <TextField.Input size="1" placeholder="Optimism" />
+    </>
+  );
+};
+
+function updateCondition(
+  statement: IfElseStatement,
+  operator: ComparisonOperator
+): IfElseStatement {
+  return {
+    ...statement,
+    data: {
+      ...statement.data!,
+      condition: {
+        ...statement.data?.condition,
+        operator,
+        ...({} as any),
+      },
+    },
+  };
+}
+
+const IFBlock = ({ statement }: { statement: IfElseStatement }) => {
+  const { onStatementUpdate } = useProgram();
+  const handleOperatorChange = useCallback(
+    (value: string) => {
+      if (!statement.data?.condition) {
+        return;
+      }
+
+      const newStatement = updateCondition(
+        statement,
+        value as ComparisonOperator
+      );
+      console.log(newStatement);
+
+      onStatementUpdate(newStatement);
+    },
+    [onStatementUpdate, statement]
+  );
+
+  if (!statement.data?.condition) {
+    return null;
+  }
+
+  const condition = statement.data.condition;
+
+  return (
+    <>
+      <Text>{statement.label}</Text>
+      {/* This would be a more complex expression */}
+      <TextField.Input size="1" placeholder="1" />
+
+      <Select.Root
+        defaultValue={condition.operator}
+        onValueChange={handleOperatorChange}
+      >
+        <Select.Trigger />
+        <Select.Content>
+          <Select.Item value={ComparisonOperator.EQUAL}>==</Select.Item>
+          <Select.Item value={ComparisonOperator.GREATER_THAN}>
+            {">"}
+          </Select.Item>
+          <Select.Item value={ComparisonOperator.LESS_THAN}>{"<"}</Select.Item>
+        </Select.Content>
+      </Select.Root>
+      {/* This would be a more complex expression */}
+      <TextField.Input size="1" placeholder="1" />
+    </>
+  );
+};
+
+const ComparisonOperatorComponent = ({
+  operator,
+  setOperator,
+}: {
+  operator: ComparisonOperator;
+  setOperator: (operator: ComparisonOperator) => void;
+}) => {
+  const handleChange = useCallback(
+    (value: string) => {
+      setOperator(value as ComparisonOperator);
+    },
+    [setOperator]
+  );
+
+  return (
+    <Select.Root defaultValue={operator} onValueChange={handleChange}>
+      <Select.Trigger />
+      <Select.Content>
+        <Select.Item value={ComparisonOperator.EQUAL}>==</Select.Item>
+        <Select.Item value={ComparisonOperator.GREATER_THAN}>{">"}</Select.Item>
+        <Select.Item value={ComparisonOperator.LESS_THAN}>{"<"}</Select.Item>
+      </Select.Content>
+    </Select.Root>
   );
 };

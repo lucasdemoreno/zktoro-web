@@ -1,6 +1,6 @@
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 
-type ChainToken = {
+export type ChainToken = {
   id: string;
   name: string;
   symbol: string;
@@ -30,11 +30,26 @@ export type SwapStatement = {
   };
 };
 
-type Condition = {
+export enum MathOperator {
+  ADD = "ADD",
+  SUBTRACT = "SUBTRACT",
+  MULTIPLY = "MULTIPLY",
+  DIVIDE = "DIVIDE",
+}
+
+export enum ComparisonOperator {
+  EQUAL = "EQUAL",
+  GREATER_THAN = "GREATER_THAN",
+  LESS_THAN = "LESS_THAN",
+}
+
+export type Expression = ChainToken | number;
+
+export type Condition = {
   // left and right values could be a number or a token.
-  left: any;
-  right: any;
-  operator: string;
+  left: Expression;
+  right: Expression;
+  operator: ComparisonOperator;
 };
 
 export type IfElseStatement = {

@@ -46,7 +46,7 @@ export const Canvas = () => {
 };
 
 const DndArea = ({ children }: PropsWithChildren<{}>) => {
-  const { onStatementsChange } = useProgram();
+  const { onStatementsAdded } = useProgram();
   const mouseSensor = useSensor(MouseSensor, {
     // Require the mouse to move by 10 pixels before activating
     activationConstraint: {
@@ -64,6 +64,7 @@ const DndArea = ({ children }: PropsWithChildren<{}>) => {
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { over, active } = event;
+
       if (!isEventStatement(active.data.current)) {
         return;
       }
@@ -73,10 +74,10 @@ const DndArea = ({ children }: PropsWithChildren<{}>) => {
       // Any drop area, main level or nested level
 
       if (typeof over?.id === "string" && over?.id?.startsWith("drop/")) {
-        onStatementsChange({ ...draggedStatement, id: uuidv4() }, over.id);
+        onStatementsAdded({ ...draggedStatement, id: uuidv4() }, over.id);
       }
     },
-    [onStatementsChange]
+    [onStatementsAdded]
   );
 
   return (

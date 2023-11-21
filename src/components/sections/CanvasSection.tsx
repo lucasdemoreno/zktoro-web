@@ -40,6 +40,7 @@ function renderStatement(
           return renderStatement(ifStatement, index, nestedLevel + 1);
         })}
         <Droppable
+          key={`${getDropStatementId(statement.id)}`}
           id={`${getDropStatementId(statement.id)}`}
           nestedLevel={nestedLevel + 1}
         >{`Drop new statement here`}</Droppable>
@@ -61,6 +62,7 @@ function renderStatement(
           return renderStatement(elseStatement, index, nestedLevel + 1);
         })}
         <Droppable
+          key={getDropStatementId(statement.id)}
           id={getDropStatementId(statement.id)}
           nestedLevel={nestedLevel + 1}
         >{`Drop new statement here`}</Droppable>
@@ -84,6 +86,7 @@ export const CanvasSection = () => {
         return renderStatement(statement, index, 1);
       })}
       <Droppable
+        key={getDropStatementId("main")}
         id={getDropStatementId("main")}
         nestedLevel={1}
       >{`Drop new statement here`}</Droppable>
