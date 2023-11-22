@@ -43,12 +43,20 @@ export enum ComparisonOperator {
   LESS_THAN = "LESS_THAN",
 }
 
-export type Expression = ChainToken | number;
+export type ComplexExpression =
+  | ChainToken
+  | number
+  | {
+      operator: MathOperator;
+      left: ComplexExpression;
+      right: ComplexExpression;
+    }
+  | null;
 
 export type Condition = {
   // left and right values could be a number or a token.
-  left: Expression;
-  right: Expression;
+  left: ComplexExpression;
+  right: ComplexExpression;
   operator: ComparisonOperator;
 };
 
