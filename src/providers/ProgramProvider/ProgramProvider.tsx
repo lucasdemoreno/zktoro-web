@@ -1,12 +1,27 @@
 import { v4 as uuidv4 } from "uuid";
-import { PropsWithChildren, createContext, useContext, useState } from "react";
+import {
+  PropsWithChildren,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import {
   ComparisonOperator,
   ElseStatement,
   IfElseStatement,
+  SendStatement,
   Statement,
   StatementType,
+  SwapStatement,
 } from "./Statements";
+import {
+  Optimism,
+  Polygon,
+  USDC_Optimism,
+  WETH_Optimism,
+  WETH_Polygon,
+} from "./Tokens";
 
 type ProgramContextValue = {
   statements: Statement[];
@@ -16,8 +31,37 @@ type ProgramContextValue = {
 };
 
 function createStatementsFromDropped(statement: Statement): Statement[] {
+  if (statement.type === StatementType.SWAP) {
+    const swapStatement: SwapStatement = {
+      ...statement,
+      data: {
+        ...statement.data,
+        from: USDC_Optimism,
+        to: WETH_Optimism,
+        chain: Optimism,
+        amount: 1,
+      },
+    };
+    return [swapStatement];
+  }
+
+  if (statement.type === StatementType.SEND) {
+    const sendStatement: SendStatement = {
+      ...statement,
+      data: {
+        ...statement.data,
+        token: WETH_Optimism,
+        to: Optimism,
+        from: Polygon,
+        amount: 1,
+      },
+    };
+    return [sendStatement];
+  }
+
   if (statement.type !== StatementType.IF_ELSE) {
-    return [statement];
+    console.error("Not supported statement type", statement.type);
+    return [];
   }
 
   // When droping an if else statement, we need to create an else statement
@@ -122,6 +166,55 @@ function getFilteredStatements(
   return filtered;
 }
 
+function recursiveFind(
+  statement: Statement,
+  statementId: string
+): Statement | undefined {
+  if (statement.id === statementId) {
+    return statement;
+  }
+  if (statement.type === StatementType.IF_ELSE) {
+    let found = statement.data?.ifStatements.find((s) => s.id === statementId);
+    if (found) {
+      return found;
+    }
+
+    statement.data?.ifStatements.forEach((s) => {
+      if (found) return;
+      const maybeFound = recursiveFind(s, statementId);
+      if (maybeFound) {
+        found = maybeFound;
+      }
+    });
+
+    if (found) {
+      return found;
+    }
+  }
+
+  if (statement.type === StatementType.ELSE) {
+    let found = statement.data?.elseStatements.find(
+      (s) => s.id === statementId
+    );
+    if (found) {
+      return found;
+    }
+
+    statement.data?.elseStatements.forEach((s) => {
+      if (found) return;
+      const maybeFound = recursiveFind(s, statementId);
+      if (maybeFound) {
+        found = maybeFound;
+      }
+    });
+
+    if (found) {
+      return found;
+    }
+  }
+  return statement;
+}
+
 export const ProgramProvider = ({ children }: PropsWithChildren) => {
   const [statements, setStatements] = useState<Statement[]>([]);
 
@@ -168,13 +261,24 @@ export const ProgramProvider = ({ children }: PropsWithChildren) => {
   };
 
   const onStatementUpdate = (statement: Statement) => {
-    const found = statements.find((s) => s.id === statement.id);
+    let found: Statement | undefined;
+    statements.forEach((s) => {
+      if (found) return;
+      const maybeFound = recursiveFind(s, statement.id);
+      if (maybeFound) {
+        found = maybeFound;
+      }
+    });
     if (found) {
       found.label = statement.label;
       found.data = statement.data;
     }
     setStatements(statements.concat([]));
   };
+
+  useEffect(() => {
+    console.log("Statements", statements);
+  }, [statements]);
 
   return (
     <ProgramContext.Provider

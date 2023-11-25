@@ -1,7 +1,9 @@
 import { PropsWithChildren, createContext, useContext, useState } from "react";
+import { Chain } from "./Tokens";
 
 export type ChainToken = {
-  id: string;
+  chainId: number;
+  address: string;
   name: string;
   symbol: string;
 };
@@ -12,8 +14,9 @@ export type SendStatement = {
   label: string;
   id: string;
   data: null | {
-    from: ChainToken;
-    to: ChainToken;
+    token: ChainToken;
+    from: Chain;
+    to: Chain;
     amount: number;
   };
 };
@@ -26,6 +29,7 @@ export type SwapStatement = {
   data: null | {
     from: ChainToken;
     to: ChainToken;
+    chain: Chain;
     amount: number;
   };
 };
@@ -43,15 +47,13 @@ export enum ComparisonOperator {
   LESS_THAN = "LESS_THAN",
 }
 
-export type ComplexExpression =
-  | ChainToken
-  | number
-  | {
-      operator: MathOperator;
-      left: ComplexExpression;
-      right: ComplexExpression;
-    }
-  | null;
+export type MathExpression = {
+  operator: MathOperator;
+  left: ComplexExpression;
+  right: ComplexExpression;
+};
+
+export type ComplexExpression = ChainToken | number | MathExpression | null;
 
 export type Condition = {
   // left and right values could be a number or a token.
