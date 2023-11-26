@@ -202,7 +202,7 @@ const SwapBlock = ({ statement }: { statement: SwapStatement }) => {
         ...statement,
         data: {
           ...statement.data,
-          amount: parseInt(event.target.value),
+          amount: parseFloat(event.target.value),
         },
       };
       onStatementUpdate(newStatement);
@@ -257,7 +257,7 @@ const SendBlock = ({ statement }: { statement: SendStatement }) => {
         ...statement,
         data: {
           ...statement.data,
-          amount: parseInt(event.target.value),
+          amount: parseFloat(event.target.value),
         },
       };
       onStatementUpdate(newStatement);
@@ -477,7 +477,7 @@ const IfExpression = ({
 
   const handleNumberChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      onExpressionChange(parseInt(event.target.value));
+      onExpressionChange(parseFloat(event.target.value));
       event.preventDefault();
       event.stopPropagation();
     },
