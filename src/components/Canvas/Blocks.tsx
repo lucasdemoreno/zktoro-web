@@ -202,7 +202,7 @@ const SwapBlock = ({ statement }: { statement: SwapStatement }) => {
         ...statement,
         data: {
           ...statement.data,
-          amount: parseFloat(event.target.value),
+          amount: event.target.value,
         },
       };
       onStatementUpdate(newStatement);
@@ -257,7 +257,7 @@ const SendBlock = ({ statement }: { statement: SendStatement }) => {
         ...statement,
         data: {
           ...statement.data,
-          amount: parseFloat(event.target.value),
+          amount: event.target.value,
         },
       };
       onStatementUpdate(newStatement);
@@ -443,7 +443,7 @@ const ComparatorComponent = ({
 function isMathOperation(
   expression: ComplexExpression
 ): expression is MathExpression {
-  if (!expression || typeof expression === "number" || "symbol" in expression) {
+  if (!expression || typeof expression === "string" || "symbol" in expression) {
     return false;
   }
   return "operator" in expression;
@@ -461,12 +461,12 @@ const IfExpression = ({
       if (optionType === "complex expression") {
         onExpressionChange({
           operator: MathOperator.DIVIDE,
-          left: 2,
-          right: 1,
+          left: "2",
+          right: "1",
         });
       }
-      if (optionType === "number") {
-        onExpressionChange(1);
+      if (optionType === "string") {
+        onExpressionChange("1");
       }
       if (optionType === "token price") {
         onExpressionChange(USDC_Polygon);
@@ -477,7 +477,7 @@ const IfExpression = ({
 
   const handleNumberChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      onExpressionChange(parseFloat(event.target.value));
+      onExpressionChange(event.target.value);
       event.preventDefault();
       event.stopPropagation();
     },
@@ -525,7 +525,7 @@ const IfExpression = ({
       );
     }
 
-    if (typeof expression === "number") {
+    if (typeof expression === "string") {
       return (
         <TextField.Input
           size="1"

@@ -17,7 +17,7 @@ export type SendStatement = {
     token: ChainToken;
     from: Chain;
     to: Chain;
-    amount: number;
+    amount: string;
   };
 };
 
@@ -30,7 +30,7 @@ export type SwapStatement = {
     from: ChainToken;
     to: ChainToken;
     chain: Chain;
-    amount: number;
+    amount: string;
   };
 };
 
@@ -53,10 +53,10 @@ export type MathExpression = {
   right: ComplexExpression;
 };
 
-export type ComplexExpression = ChainToken | number | MathExpression | null;
+export type ComplexExpression = ChainToken | string | MathExpression | null;
 
 export type Condition = {
-  // left and right values could be a number or a token.
+  // left and right values could be a number (string before parsing) or a token.
   left: ComplexExpression;
   right: ComplexExpression;
   operator: ComparisonOperator;

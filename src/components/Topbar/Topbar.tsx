@@ -2,6 +2,7 @@ import styles from "./Topbar.module.css";
 import NextLink from "next/link";
 import { Flex, Text, Link, Section } from "@radix-ui/themes";
 import Image from "next/image";
+import { ProfileButton } from "../ProfileButton/ProfileButton";
 
 export const Topbar = () => {
   return (
@@ -40,13 +41,7 @@ export const Topbar = () => {
           </Link>
         </Flex>
         <Flex align="center">
-          <Link asChild>
-            <NextLink href="/profile">
-              <Text weight="bold" as="span" className={styles.text}>
-                Profile
-              </Text>
-            </NextLink>
-          </Link>
+          <ProfileButton />
         </Flex>
       </Flex>
     </Section>

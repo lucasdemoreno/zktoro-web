@@ -15,13 +15,7 @@ import {
   StatementType,
   SwapStatement,
 } from "./Statements";
-import {
-  Optimism,
-  Polygon,
-  USDC_Optimism,
-  WETH_Optimism,
-  WETH_Polygon,
-} from "./Tokens";
+import { Optimism, Polygon, USDC_Optimism, WETH_Optimism } from "./Tokens";
 
 type ProgramContextValue = {
   statements: Statement[];
@@ -39,7 +33,7 @@ function createStatementsFromDropped(statement: Statement): Statement[] {
         from: USDC_Optimism,
         to: WETH_Optimism,
         chain: Optimism,
-        amount: 1,
+        amount: "1",
       },
     };
     return [swapStatement];
@@ -53,7 +47,7 @@ function createStatementsFromDropped(statement: Statement): Statement[] {
         token: WETH_Optimism,
         to: Optimism,
         from: Polygon,
-        amount: 1,
+        amount: "1",
       },
     };
     return [sendStatement];
@@ -82,8 +76,8 @@ function createStatementsFromDropped(statement: Statement): Statement[] {
       ...statement.data,
       ifStatements: [],
       condition: {
-        left: 2,
-        right: 1,
+        left: "2",
+        right: "1",
         operator: ComparisonOperator.GREATER_THAN,
       },
       elseStatement,
