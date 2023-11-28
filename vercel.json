@@ -1,0 +1,3 @@
+{
+  "installCommand": "./scripts/install-cli-dependencies.sh && yarn install"
+}
