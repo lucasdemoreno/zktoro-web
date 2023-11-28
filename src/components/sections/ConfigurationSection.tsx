@@ -57,14 +57,6 @@ export const ConfigurationSection = () => {
           />
         </Box>
         <Box>
-          <Text size="1">Profitability</Text>
-          <TextField.Input
-            size="1"
-            onChange={handleChange("profitability")}
-            placeholder="5%"
-          />
-        </Box>
-        <Box>
           <Text size="1">Sharpe Ratio</Text>
           <TextField.Input
             size="1"

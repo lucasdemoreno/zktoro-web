@@ -6,7 +6,6 @@ const INITIAL_CONFIG: Configuration = {
   lifespan: "1 year",
   maxLiquidity: "1000",
   author: "username",
-  profitability: "0",
   sharpeRatio: "0",
   standardDeviation: "0",
   maxDrawdown: "0",
@@ -17,7 +16,6 @@ export type Configuration = {
   lifespan: string;
   maxLiquidity: string;
   author: string;
-  profitability: string;
   sharpeRatio: string;
   standardDeviation: string;
   maxDrawdown: string;
