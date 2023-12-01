@@ -1,3 +1,4 @@
+"use client";
 import { Box, Button, Flex } from "@radix-ui/themes";
 import styles from "../Canvas/Canvas.module.css";
 import { DraggableStatement } from "../Canvas/Blocks";

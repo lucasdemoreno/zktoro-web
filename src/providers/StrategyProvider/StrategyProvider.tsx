@@ -78,7 +78,7 @@ export type PublishAction = {
   payload: {
     step: keyof PublishStatus;
     status: StepStatusEnum;
-    result?: string;
+    result?: any;
   };
 };
 

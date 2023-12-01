@@ -15,7 +15,7 @@ import {
   StatementType,
   SwapStatement,
 } from "./Statements";
-import { Optimism, Polygon, USDC_Optimism, WETH_Optimism } from "./Tokens";
+import { Avalanche, Polygon, USDC_Avalanche, WETH_Avalanche } from "./Tokens";
 
 type ProgramContextValue = {
   statements: Statement[];
@@ -30,9 +30,9 @@ function createStatementsFromDropped(statement: Statement): Statement[] {
       ...statement,
       data: {
         ...statement.data,
-        from: USDC_Optimism,
-        to: WETH_Optimism,
-        chain: Optimism,
+        from: USDC_Avalanche,
+        to: WETH_Avalanche,
+        chain: Avalanche,
         amount: "1",
       },
     };
@@ -44,8 +44,8 @@ function createStatementsFromDropped(statement: Statement): Statement[] {
       ...statement,
       data: {
         ...statement.data,
-        token: WETH_Optimism,
-        to: Optimism,
+        token: WETH_Avalanche,
+        to: Avalanche,
         from: Polygon,
         amount: "1",
       },

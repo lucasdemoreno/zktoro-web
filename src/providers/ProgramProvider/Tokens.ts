@@ -10,49 +10,53 @@ export const Polygon: Chain = {
   chainId: 137,
 };
 
-export const Optimism: Chain = {
-  name: "Optimism",
-  chainId: 10,
+export const Avalanche: Chain = {
+  name: "Avalanche",
+  chainId: 43114,
 };
 
 export const USDC_Polygon: ChainToken = {
-  name: "USDC Polygon",
+  name: "USDC (Polygon)",
   chainId: 137,
-  address: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-  symbol: "USDC.e",
+  decimals: 6,
+  address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+  symbol: "USDC",
 };
 
-export const USDC_Optimism: ChainToken = {
-  name: "USDC Optimism",
-  chainId: 10,
-  address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
-  symbol: "USDC.e",
+export const USDC_Avalanche: ChainToken = {
+  name: "USDC (Avalanche)",
+  chainId: 43114,
+  decimals: 6,
+  address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+  symbol: "USDC",
 };
 
 // Same for Wrapper Ether on Polygon Mainnet
 export const WETH_Polygon: ChainToken = {
-  name: "WETH Polygon",
+  name: "WETH (Polygon)",
   chainId: 137,
-  address: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
-  symbol: "WETH.e",
+  decimals: 18,
+  address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+  symbol: "WETH",
 };
 
-// Same for Wrapper Ether on Optimism Mainnet
-export const WETH_Optimism: ChainToken = {
-  name: "WETH Optimism",
-  chainId: 10,
-  address: "0x4200000",
-  symbol: "WETH.e",
+// Same for Wrapper Ether on Avalanche Mainnet
+export const WETH_Avalanche: ChainToken = {
+  name: "WETH (Avalanche)",
+  chainId: 43114,
+  decimals: 18,
+  address: "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+  symbol: "WETH",
 };
 
-export const CHAIN_LIST: Chain[] = [Polygon, Optimism];
+export const CHAIN_LIST: Chain[] = [Polygon, Avalanche];
 
 // This is a hardcoded list of tokens that we support
 export const TOKEN_LIST: ChainToken[] = [
   USDC_Polygon,
-  USDC_Optimism,
+  USDC_Avalanche,
   WETH_Polygon,
-  WETH_Optimism,
+  WETH_Avalanche,
 ];
 
 export function getTokenByName(name: string): ChainToken | undefined {
@@ -61,4 +65,8 @@ export function getTokenByName(name: string): ChainToken | undefined {
 
 export function getChainByName(name: string): Chain | undefined {
   return CHAIN_LIST.find((chain) => chain.name === name);
+}
+
+export function getChainById(chainId: number): Chain | undefined {
+  return CHAIN_LIST.find((chain) => chain.chainId === chainId);
 }

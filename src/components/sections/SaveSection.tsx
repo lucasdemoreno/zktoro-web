@@ -1,12 +1,12 @@
 import { Button, Dialog, Flex, Text } from "@radix-ui/themes";
 import styles from "../Canvas/Canvas.module.css";
 import { useProgram } from "@/providers/ProgramProvider/ProgramProvider";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { ChainToken, Statement } from "@/providers/ProgramProvider/Statements";
 import {
-  USDC_Optimism,
+  USDC_Avalanche,
   USDC_Polygon,
-  WETH_Optimism,
+  WETH_Avalanche,
   WETH_Polygon,
 } from "@/providers/ProgramProvider/Tokens";
 import {
@@ -19,18 +19,12 @@ import {
   StepStatusEnum,
   useStrategy,
 } from "@/providers/StrategyProvider/StrategyProvider";
-import {
-  convertToPython,
-  tryConvertToPython,
-} from "@/clientUtils/convertToPython";
+import { tryConvertToPython } from "@/clientUtils/convertToPython";
 import { tryConvertToCircom } from "@/clientUtils/convertToCircom";
-import {
-  tryCreateSetTokenChainA,
-  tryCreateSetTokenChainB,
-} from "@/clientUtils/createSetTokenChain";
-import { on } from "events";
+import { useCreateSetTokenChain } from "@/clientUtils/createSetTokenChain";
 import { tryRegisterVaultPair } from "@/clientUtils/registerVaultPair";
 import { tryCreateDockerImage } from "@/clientUtils/createDockerImage";
+import { useWaitForTransaction } from "wagmi";
 
 export const SaveSection = () => {
   return (
@@ -61,12 +55,12 @@ function getTokensAndChains(_statements: Statement[]): {
 } {
   // Token A is USDC
   // Token B is WETH
-  // Chain A is Optimism
+  // Chain A is USDC_Avalanche
   // Chain B is Polygon
-  const tokenA_chainA = USDC_Optimism;
-  const tokenB_chainA = WETH_Optimism;
-  const tokenA_chainB = USDC_Polygon;
-  const tokenB_chainB = WETH_Polygon;
+  const tokenA_chainA = USDC_Polygon;
+  const tokenB_chainA = WETH_Polygon;
+  const tokenA_chainB = USDC_Avalanche;
+  const tokenB_chainB = WETH_Avalanche;
 
   return { tokenA_chainA, tokenB_chainA, tokenA_chainB, tokenB_chainB };
 }
@@ -142,6 +136,22 @@ const CreateStrategyModal = () => {
     return publishStatus.createDockerImage.status === StepStatusEnum.SUCCESS;
   }, [publishStatus.createDockerImage.status]);
 
+  const { onCreateSetTokenChain: onCreateSetTokenChainA } =
+    useCreateSetTokenChain(
+      tokenA_chainA,
+      tokenB_chainA,
+      "createSetTokenChainA",
+      publishDispatch
+    );
+
+  const { onCreateSetTokenChain: onCreateSetTokenChainB } =
+    useCreateSetTokenChain(
+      tokenA_chainB,
+      tokenB_chainB,
+      "createSetTokenChainB",
+      publishDispatch
+    );
+
   const onConvertToPython = useCallback(() => {
     tryConvertToPython(statements, publishDispatch);
   }, [publishDispatch, statements]);
@@ -149,14 +159,6 @@ const CreateStrategyModal = () => {
   const onConvertToCircom = useCallback(() => {
     tryConvertToCircom(statements, publishDispatch);
   }, [publishDispatch, statements]);
-
-  const onCreateSetTokenChainA = useCallback(() => {
-    tryCreateSetTokenChainA(tokenA_chainA, tokenB_chainA, publishDispatch);
-  }, [publishDispatch, tokenA_chainA, tokenB_chainA]);
-
-  const onCreateSetTokenChainB = useCallback(() => {
-    tryCreateSetTokenChainB(tokenA_chainB, tokenB_chainB, publishDispatch);
-  }, [publishDispatch, tokenA_chainB, tokenB_chainB]);
 
   const onRegisterVaultPair = useCallback(() => {
     const { result: resultSetTokenChainA } = publishStatus.createSetTokenChainA;
@@ -196,7 +198,7 @@ const CreateStrategyModal = () => {
           Tokens in the Strategy:
           <Flex>{tokens.map((token) => token.name).join(", ")}</Flex>
         </Flex>
-        <Flex>
+        <Flex direction="column">
           <Flex p="4" direction="column" gap="4">
             <Flex align="center" gap="4">
               <Button
@@ -270,6 +272,45 @@ const CreateStrategyModal = () => {
                 Create Docker Image
               </Button>
               {getIconFromStatus(publishStatus.createDockerImage.status)}
+            </Flex>
+          </Flex>
+          <Flex direction="column">
+            <Text>Logs:</Text>
+            <Flex>
+              <Text>
+                convertToPython:{" "}
+                {JSON.stringify(publishStatus.convertToPython.result)}
+              </Text>
+            </Flex>
+            <Flex>
+              <Text>
+                convertToCircom:{" "}
+                {JSON.stringify(publishStatus.convertToCircom.result)}
+              </Text>
+            </Flex>
+            <Flex>
+              <Text>
+                createSetTokenChainA:{" "}
+                {JSON.stringify(publishStatus.createSetTokenChainA.result)}
+              </Text>
+            </Flex>
+            <Flex>
+              <Text>
+                createSetTokenChainB:{" "}
+                {JSON.stringify(publishStatus.createSetTokenChainB.result)}
+              </Text>
+            </Flex>
+            <Flex>
+              <Text>
+                registerVaultPair:{" "}
+                {JSON.stringify(publishStatus.registerVaultPair.result)}
+              </Text>
+            </Flex>
+            <Flex>
+              <Text>
+                createDockerImage:{" "}
+                {JSON.stringify(publishStatus.createDockerImage.result)}
+              </Text>
             </Flex>
           </Flex>
         </Flex>

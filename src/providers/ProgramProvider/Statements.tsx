@@ -5,6 +5,7 @@ export type ChainToken = {
   chainId: number;
   address: string;
   name: string;
+  decimals: number;
   symbol: string;
 };
 

@@ -1,91 +1,139 @@
-import { ChainToken, Statement } from "@/providers/ProgramProvider/Statements";
+import { ChainToken } from "@/providers/ProgramProvider/Statements";
 import {
   PublishAction,
   StepStatusEnum,
 } from "@/providers/StrategyProvider/StrategyProvider";
-import { Dispatch } from "react";
+import { ManagerABI } from "@/transactions/abi";
+import { getChainSC } from "@/transactions/contracts";
+import { Dispatch, use, useCallback, useEffect, useState } from "react";
+import { trim } from "viem";
+import {
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 
-/**
- * TODO: This function should convert create the set token on chain A
- *
- * @returns a promise that resolves to a success string from
- * the set token creation
- */
-export async function createSetTokenChain(
-  tokenA: ChainToken,
-  tokenB: ChainToken
-): Promise<string> {
-  // TODO: Replace this with the actual set token creation
-  const result = `${tokenA.name}, ${tokenB.name} set token created on chain A`;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+type UseCreateTokenResult = {
+  onCreateSetTokenChain: () => void;
+};
 
-  return result;
-}
-
-export async function tryCreateSetTokenChainA(
+export function useCreateSetTokenChain(
   tokenA: ChainToken,
   tokenB: ChainToken,
+  step: "createSetTokenChainA" | "createSetTokenChainB",
   publishDispatch: Dispatch<PublishAction>
-): Promise<void> {
-  publishDispatch({
-    type: "UPDATE",
-    payload: {
-      step: "createSetTokenChainA",
-      status: StepStatusEnum.PENDING,
-    },
-  });
-  try {
-    const setTokenCreated = await createSetTokenChain(tokenA, tokenB);
-    publishDispatch({
-      type: "UPDATE",
-      payload: {
-        step: "createSetTokenChainA",
-        status: StepStatusEnum.SUCCESS,
-        result: setTokenCreated,
-      },
-    });
-  } catch (e) {
-    publishDispatch({
-      type: "UPDATE",
-      payload: {
-        step: "createSetTokenChainA",
-        status: StepStatusEnum.FAILURE,
-        result: e as any,
-      },
-    });
-  }
-}
+): UseCreateTokenResult {
+  const chain = getChainSC(tokenA.chainId);
+  const [setTokenCreated, setSetTokenCreated] = useState<string | null>(null);
 
-export async function tryCreateSetTokenChainB(
-  tokenA: ChainToken,
-  tokenB: ChainToken,
-  publishDispatch: Dispatch<PublishAction>
-): Promise<void> {
-  publishDispatch({
-    type: "UPDATE",
-    payload: {
-      step: "createSetTokenChainB",
-      status: StepStatusEnum.PENDING,
+  const { config } = usePrepareContractWrite({
+    address: chain.ManagerAddress as `0x${string}`,
+    abi: ManagerABI,
+    functionName: "createSetToken",
+
+    args: [
+      [tokenA.address as `0x${string}`, tokenB.address as `0x${string}`],
+      [BigInt(1 * 10 ** tokenA.decimals), BigInt(1 * 10 ** tokenB.decimals)],
+      `Leonardo 02 - ${tokenA.symbol}:${tokenB.symbol}`,
+      "LEO02",
+    ],
+  });
+  const {
+    data: writeResponse,
+    isLoading,
+    isSuccess,
+    write,
+    error,
+  } = useContractWrite(config);
+
+  const transactionData = useWaitForTransaction({
+    hash: writeResponse?.hash as `0x${string}`,
+    onSettled: (data) => {
+      console.log(data);
+      if (data?.status === "success") {
+        console.log("transactionData settled", data?.status === "success");
+        const result = data.logs[0].topics[1];
+        console.log(result);
+        if (result) {
+          const parsedResult = trim(result);
+          console.log(parsedResult);
+          setSetTokenCreated(parsedResult);
+        }
+      }
     },
   });
-  try {
-    const setTokenCreated = await createSetTokenChain(tokenA, tokenB);
-    publishDispatch({
-      type: "UPDATE",
-      payload: {
-        step: "createSetTokenChainB",
-        status: StepStatusEnum.SUCCESS,
-        result: setTokenCreated,
-      },
-    });
-  } catch (e) {
-    publishDispatch({
-      type: "UPDATE",
-      payload: {
-        step: "createSetTokenChainB",
-        status: StepStatusEnum.FAILURE,
-        result: e as any,
-      },
-    });
+
+  useEffect(() => {
+    if (error) {
+      console.log("error", error);
+      publishDispatch({
+        type: "UPDATE",
+        payload: {
+          step,
+          status: StepStatusEnum.FAILURE,
+          result: error,
+        },
+      });
+      return;
+    }
+
+    if (isLoading) {
+      console.log("loading");
+      publishDispatch({
+        type: "UPDATE",
+        payload: {
+          step,
+          status: StepStatusEnum.PENDING,
+        },
+      });
+      return;
+    }
+
+    if (!isLoading && isSuccess && !error && setTokenCreated) {
+      console.log("success", setTokenCreated);
+      publishDispatch({
+        type: "UPDATE",
+        payload: {
+          step,
+          status: StepStatusEnum.SUCCESS,
+          result: setTokenCreated,
+        },
+      });
+
+      console.log("response from setTokenCreate", writeResponse);
+    }
+  }, [
+    writeResponse,
+    isLoading,
+    isSuccess,
+    error,
+    step,
+    publishDispatch,
+    setTokenCreated,
+  ]);
+
+  const onCreateSetTokenChain = useCallback(() => {
+    try {
+      console.log("calling write", write);
+      write?.();
+    } catch (e) {
+      publishDispatch({
+        type: "UPDATE",
+        payload: {
+          step,
+          status: StepStatusEnum.FAILURE,
+          result: e as any,
+        },
+      });
+    }
+  }, [publishDispatch, write, step]);
+
+  if (tokenA.chainId !== tokenB.chainId) {
+    throw new Error("Chain 1 and Chain 2 must be the same");
   }
+  console.log("returning hook function onCreateSetTokenChain");
+
+  return {
+    onCreateSetTokenChain,
+  };
 }
