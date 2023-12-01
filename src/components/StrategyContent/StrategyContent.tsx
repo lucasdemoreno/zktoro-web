@@ -60,6 +60,7 @@ function useChainHoldings(chainId: number, setToken: string): string {
     address: setToken as `0x${string}`,
     abi: ISetTokenABI,
     functionName: "balanceOf",
+    // @ts-ignore
     args: [address],
   });
 
@@ -78,6 +79,7 @@ function useChainHoldings(chainId: number, setToken: string): string {
     address: setToken as `0x${string}`,
     abi: ISetTokenABI,
     functionName: "getPositions",
+    // @ts-ignore
     args: [],
   });
 
