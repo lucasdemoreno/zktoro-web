@@ -6,26 +6,48 @@ import {
   strategy4,
 } from "@/types/browse";
 import { kv } from "@vercel/kv";
+import { MongoClient, ServerApiVersion, WithId, WithoutId } from "mongodb";
+
+let dbConnection: MongoClient | null = null;
+
+function getMongoClient(): MongoClient {
+  if (!dbConnection) {
+    const uri = process.env.MONGODB_URI;
+    if (!uri) {
+      throw new Error("MONGODB_URI is not defined");
+    }
+    dbConnection = new MongoClient(uri, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      },
+    });
+  }
+  return dbConnection;
+}
+
+async function getCollStrategy() {
+  const client = getMongoClient();
+  const connection = await client.connect();
+  const db = connection.db("zkToro-db");
+  const collStrategies = db.collection("strategies");
+  return collStrategies;
+}
 
 /**
  * This won't be needed when we publish the
  * strategies to the database
  */
 async function populateDBIfNeeded() {
-  const list = await kv.lrange("browseStrategies1", 0, -1);
-  if (list.length === 0) {
-    await kv.set(`strategy:${strategy1.id}`, strategy1);
-    await kv.set(`strategy:${strategy2.id}`, strategy2);
-    await kv.set(`strategy:${strategy3.id}`, strategy3);
-    await kv.set(`strategy:${strategy4.id}`, strategy4);
+  const collStrategies = await getCollStrategy();
+  const strategies = await collStrategies.find({}).toArray();
 
-    await kv.lpush(
-      "browseStrategies1",
-      `strategy:${strategy1.id}`,
-      `strategy:${strategy2.id}`,
-      `strategy:${strategy3.id}`,
-      `strategy:${strategy4.id}`
-    );
+  if (strategies.length === 0) {
+    await collStrategies.insertOne(strategy1);
+    await collStrategies.insertOne(strategy2);
+    await collStrategies.insertOne(strategy3);
+    await collStrategies.insertOne(strategy4);
   }
 }
 
@@ -37,15 +59,10 @@ export async function getAllStrategies(): Promise<BrowseStrategy[]> {
   }
 
   try {
-    // 0 is the first element; -1 is the last element
-    // So this returns the whole list
-    const strategyIds = await kv.lrange("browseStrategies1", 0, -1);
-    const maybeStrategies = await Promise.all(
-      strategyIds.map((id) => {
-        return kv.get<BrowseStrategy>(id);
-      })
-    );
-    const strategies = maybeStrategies.filter((s) => !!s) as BrowseStrategy[];
+    const collStrategies = await getCollStrategy();
+    const dbStrategies = await collStrategies.find({}).toArray();
+    const strategies: BrowseStrategy[] = dbStrategies as any[];
+
     return strategies;
   } catch (error) {
     console.log(error);
@@ -58,12 +75,17 @@ export async function getStrategyById(
   id: string
 ): Promise<BrowseStrategy | null> {
   try {
-    const strategy = await kv.get<BrowseStrategy>(`strategy:${id}`);
+    const collStrategies = await getCollStrategy();
+    const dbStrategy = await collStrategies.findOne({ id });
+    console.log(dbStrategy);
+    if (!dbStrategy) {
+      return null;
+    }
 
-    return strategy;
+    return dbStrategy as any;
   } catch (error) {
     console.log(error);
     // Handle errors
-    return strategy1;
+    return null;
   }
 }
