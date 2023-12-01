@@ -1,4 +1,3 @@
-import { Canvas } from "@/components/Canvas/Canvas";
 import { StrategyContent } from "@/components/StrategyContent/StrategyContent";
 import { Topbar } from "@/components/Topbar/Topbar";
 import { getStrategyById } from "@/db/db";

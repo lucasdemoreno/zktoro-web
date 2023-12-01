@@ -1,19 +1,14 @@
+import { BrowseStrategy } from "@/types/browse";
 import { Text, Card, Inset, Strong, Link } from "@radix-ui/themes";
 import NextLink from "next/link";
 
 type StrategyCardProps = {
-  title: string;
-  description: string;
-  image: string;
-  id: string;
+  strategy: BrowseStrategy;
 };
 
-export const StrategyCard = ({
-  title,
-  description,
-  image,
-  id,
-}: StrategyCardProps) => {
+export const StrategyCard = ({ strategy }: StrategyCardProps) => {
+  const { name, description, image, id } = strategy;
+
   return (
     <Link asChild>
       <NextLink href={`/strategy/${id}`}>
@@ -22,7 +17,7 @@ export const StrategyCard = ({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={image}
-              alt={title}
+              alt={name}
               style={{
                 display: "block",
                 objectFit: "cover",
@@ -33,7 +28,7 @@ export const StrategyCard = ({
             />
           </Inset>
           <Text as="p" size="3">
-            <Strong>{title}</Strong>. {description}.
+            <Strong>{name}</Strong>. {description}.
           </Text>
         </Card>
       </NextLink>

@@ -5,6 +5,7 @@ import { Flex, Grid, Heading, Section } from "@radix-ui/themes";
 
 export default async function Browse() {
   const strategiesFromDB = await getAllStrategies();
+
   return (
     <main>
       <Topbar />
@@ -14,13 +15,7 @@ export default async function Browse() {
           <Section p="6">
             <Grid columns="4" width="auto" gap="4">
               {strategiesFromDB.map((strategy) => (
-                <StrategyCard
-                  key={strategy.name}
-                  title={strategy.name}
-                  description={strategy.description}
-                  image={strategy.image}
-                  id={strategy.id}
-                />
+                <StrategyCard key={strategy.name} strategy={strategy} />
               ))}
             </Grid>
           </Section>
