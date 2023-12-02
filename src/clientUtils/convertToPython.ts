@@ -1,3 +1,4 @@
+import { parse } from "@/parser/parser";
 import { Statement } from "@/providers/ProgramProvider/Statements";
 import {
   PublishAction,
@@ -15,7 +16,7 @@ export async function convertToPython(
   statements: Statement[]
 ): Promise<string> {
   // TODO: Replace this with the actual convertion to Python
-  const result = JSON.stringify(statements);
+  const result = parse(statements);
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   return result;

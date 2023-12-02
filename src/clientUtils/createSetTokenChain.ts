@@ -131,7 +131,6 @@ export function useCreateSetTokenChain(
   if (tokenA.chainId !== tokenB.chainId) {
     throw new Error("Chain 1 and Chain 2 must be the same");
   }
-  console.log("returning hook function onCreateSetTokenChain");
 
   return {
     onCreateSetTokenChain,

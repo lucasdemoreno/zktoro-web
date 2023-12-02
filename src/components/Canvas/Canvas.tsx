@@ -25,23 +25,23 @@ import { CanvasSection } from "../sections/CanvasSection";
 
 export const Canvas = () => {
   return (
-    <Box p="4" className={styles.canvasContainer}>
-      <Flex className={styles.canvas} direction="column">
-        <Flex direction="row">
-          <ProgramProvider>
+    <ProgramProvider>
+      <Box p="4" className={styles.canvasContainer}>
+        <Flex className={styles.canvas} direction="column">
+          <Flex direction="row">
             <DndArea>
               <ModulesSection />
               <CanvasSection />
             </DndArea>
-          </ProgramProvider>
-          <ConfigurationSection />
+            <ConfigurationSection />
+          </Flex>
+          <Flex direction="column">
+            <PreviewSection />
+            <SaveSection />
+          </Flex>
         </Flex>
-        <Flex direction="column">
-          <PreviewSection />
-          <SaveSection />
-        </Flex>
-      </Flex>
-    </Box>
+      </Box>
+    </ProgramProvider>
   );
 };
 
