@@ -2,7 +2,8 @@
 import { CaretDownIcon } from "@radix-ui/react-icons";
 import { Button, DropdownMenu } from "@radix-ui/themes";
 import { useRouter } from "next/navigation";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useAccount, useConnect, useDisconnect, useNetwork } from "wagmi";
+import { getNetwork } from "wagmi/actions";
 import { InjectedConnector } from "wagmi/connectors/injected";
 
 /**
@@ -20,15 +21,17 @@ export const ProfileButton = () => {
   const { connect } = useConnect({
     connector: new InjectedConnector(),
   });
+  const { chain } = useNetwork();
   const { disconnect } = useDisconnect();
   const router = useRouter();
+  const chainName = `(${chain?.name})` || "";
 
   if (isConnected && address)
     return (
       <DropdownMenu.Root>
         <DropdownMenu.Trigger>
           <Button variant="soft">
-            Connected to {getEllipsisTxt(address, 3)}
+            {chainName} Connected to {getEllipsisTxt(address, 3)}
             <CaretDownIcon />
           </Button>
         </DropdownMenu.Trigger>
