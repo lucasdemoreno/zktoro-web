@@ -1,7 +1,7 @@
-import { StrategyCard } from "@/components/StrategyCard/StrategyCard";
+import { StrategyGrid } from "@/components/StrategyGrid/StrategyGrid";
 import { Topbar } from "@/components/Topbar/Topbar";
 import { getAllStrategies } from "@/db/db";
-import { Flex, Grid, Heading, Section } from "@radix-ui/themes";
+import { Flex, Heading, Section } from "@radix-ui/themes";
 
 export default async function Browse() {
   const strategiesFromDB = await getAllStrategies();
@@ -9,15 +9,11 @@ export default async function Browse() {
   return (
     <main>
       <Topbar />
-      <Section p="2">
+      <Section p="2" mt="4">
         <Flex direction="column" align="center">
-          <Heading size="8">Browse</Heading>
+          <Heading size="8">Discover</Heading>
           <Section p="6">
-            <Grid columns="4" width="auto" gap="4">
-              {strategiesFromDB.map((strategy) => (
-                <StrategyCard key={strategy.name} strategy={strategy} />
-              ))}
-            </Grid>
+            <StrategyGrid strategies={strategiesFromDB} />
           </Section>
         </Flex>
       </Section>

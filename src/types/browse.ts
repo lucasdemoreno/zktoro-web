@@ -60,9 +60,9 @@ export const strategy1: BrowseStrategy = {
   },
   setToken_chainA: "0xEC553087B96e5cE90c19187B1F85A7EF75FA30bB",
   setToken_chainB: "0xA443A48dfA97FC86ddEc44A5edD485F9F4211548",
-  name: "Buy Dips and Hold",
+  name: "Arbitrage Bot",
   description:
-    "When there is a bullish market trend generally, one trading approach is to purchase on dips and sell when the market recovers from a correction or consolidation. ",
+    "Capitalize on price differences between USDC and WETH on Polygon and Avalanche, executing swift trades for maximum profitability.",
   image: "/strategy-1.png",
 };
 
@@ -100,9 +100,9 @@ export const strategy2: BrowseStrategy = {
   },
   setToken_chainA: "0x670EcAD39ED80d0af15050eE7119Bb53f8F702Ce",
   setToken_chainB: "0x6603821B365A86d578Ce04DEA116262D8726331E",
-  name: "Day Trading Strategy",
+  name: "Automated Rebalancing",
   description:
-    "Day trading is a strategy in which traders open and close positions during the same trading day. Day traders frequently enter and exit trading positions within the day and rarely hold positions overnight.",
+    "Implement an algorithm for continuous portfolio rebalancing, optimizing USDC and WETH allocations between Polygon and Avalanche for maximum returns",
   image: "/strategy-2.png",
 };
 
@@ -110,9 +110,9 @@ export const strategy3: BrowseStrategy = {
   id: "3",
   address: "0x1234",
   isMocked: true,
-  name: "Swing Trading Strategy",
+  name: "Price Delta Arbitrage Bot",
   description:
-    "Swing trading is a strategy in which traders hold positions for longer than a single day, but generally for less than a month. Swing traders often use technical analysis to look for trading opportunities.",
+    "Seize opportunities in USDC and WETH price variations between Polygon and Avalanche, executing rapid trades to maximize profits.",
   image: "/strategy-3.png",
 };
 
@@ -120,8 +120,8 @@ export const strategy4: BrowseStrategy = {
   id: "4",
   address: "0x1234",
   isMocked: true,
-  name: "Scalping Strategy",
+  name: "Dynamic Portfolio Rebalancer",
   description:
-    "Scalping is a trading strategy in which traders profit off small price changes for a stock. Scalping relies on technical analysis, such as candlestick charts and MACD, for execution.",
+    "Employ an algorithm for ongoing portfolio optimization, fine-tuning allocations of USDC and WETH between Polygon and Avalanche to enhance overall returns.",
   image: "/strategy-4.png",
 };

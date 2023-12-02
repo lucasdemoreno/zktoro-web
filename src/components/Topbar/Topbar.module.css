@@ -2,10 +2,16 @@
   position: sticky;
   top: 0;
   z-index: 1;
+  border-bottom: 0.5px solid var(--cyan-3);
+  background-color: var(--color-page-background);
 }
 
 .logo {
   border-radius: 6px;
+}
+
+.active {
+  text-decoration-color: var(--cyan-9);
 }
 
 .text {
