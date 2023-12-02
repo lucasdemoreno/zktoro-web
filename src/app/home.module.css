@@ -6,3 +6,11 @@
   align-items: center;
   justify-content: center;
 }
+
+.title {
+  max-width: 70vw;
+}
+
+.subtitle {
+  color: var(--cyan-12);
+}

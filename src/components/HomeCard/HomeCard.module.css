@@ -1,0 +1,19 @@
+.card {
+  color: white;
+  width: 400px;
+}
+
+.text {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.image {
+  height: 140px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--cyan-6);
+}
