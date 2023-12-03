@@ -36,7 +36,7 @@ export const Canvas = () => {
             <ConfigurationSection />
           </Flex>
           <Flex direction="column">
-            <PreviewSection />
+            {/* <PreviewSection /> */}
             <SaveSection />
           </Flex>
         </Flex>

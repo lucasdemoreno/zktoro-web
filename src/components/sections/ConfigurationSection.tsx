@@ -90,7 +90,7 @@ export const ConfigurationSection = () => {
         </Box>
       </Flex>
       <Flex p="3" direction="row-reverse">
-        <Button onClick={handleBacktest}>
+        <Button disabled onClick={handleBacktest}>
           {backtestStatus.loading ? "..." : "Backtest"}
         </Button>
       </Flex>
