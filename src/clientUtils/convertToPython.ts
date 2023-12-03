@@ -5,6 +5,7 @@ import {
   StepStatusEnum,
 } from "@/providers/StrategyProvider/StrategyProvider";
 import { Dispatch } from "react";
+import { createPythonFileContent } from "./createPythonFileContent";
 
 /**
  * TODO: This function should convert the statements to Python
@@ -12,18 +13,25 @@ import { Dispatch } from "react";
  * @returns a promise that resolves to a success string from
  * the Python conversion
  */
-export async function convertToPython(
-  statements: Statement[]
-): Promise<string> {
+export function convertToPython(
+  statements: Statement[],
+  setToken_chainA: string,
+  setToken_chainB: string
+): string {
   // TODO: Replace this with the actual convertion to Python
   const result = parse(statements);
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  return result;
+  const fileContent = createPythonFileContent(
+    result,
+    setToken_chainA,
+    setToken_chainB
+  );
+  return fileContent;
 }
 
 export async function tryConvertToPython(
   statements: Statement[],
+  setToken_chainA: string = "0xEC553087B96e5cE90c19187B1F85A7EF75FA30bB", // Examples for now POLI
+  setToken_chainB: string = "0xA443A48dfA97FC86ddEc44A5edD485F9F4211548", // Examples for now AVAX
   publishDispatch: Dispatch<PublishAction>
 ): Promise<void> {
   publishDispatch({
@@ -34,7 +42,12 @@ export async function tryConvertToPython(
     },
   });
   try {
-    const pythonConvertion = await convertToPython(statements);
+    const pythonConvertion = convertToPython(
+      statements,
+      setToken_chainA,
+      setToken_chainB
+    );
+    console.log(pythonConvertion);
     publishDispatch({
       type: "UPDATE",
       payload: {

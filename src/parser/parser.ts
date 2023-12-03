@@ -217,18 +217,28 @@ function getOtherChain(chain: Chain): Chain {
   throw new Error(`Chain ${chain.name} is not supported`);
 }
 
+function getSetToken(chain: string): string {
+  if (chain === "Avalanche") {
+    return "SetTokenAvalanche";
+  }
+  if (chain === "Polygon") {
+    return "SetTokenPoly";
+  }
+  throw new Error(`Chain ${chain} is not supported`);
+}
+
 function buildSwapCall(
   from: ChainToken,
   to: ChainToken,
   chain: Chain,
   quantity: string
 ): string[] {
-  const sourceChain = chain.name;
-  const destChain = getOtherChain(chain).name;
-  const setTokenSourceChain = `SET_TOKEN_in_${chain.name}`;
-  const sendTokenSourceChain = from.address;
+  const sourceChain = `"${chain.name}"`;
+  const destChain = `"${getOtherChain(chain).name}"`;
+  const setTokenSourceChain = getSetToken(chain.name); // `SET_TOKEN_in_${chain.name}`;
+  const sendTokenSourceChain = `"${from.address}"`;
   const sendQuantitySourceChain = 50 * 10 ** 6; // Fixed for now.
-  const receiveTokenSourceChain = to.address;
+  const receiveTokenSourceChain = `"${to.address}"`;
   const minReceiveQuantitySourceChain = 0; // For now.
   const poolFeeSourceChain = 500; // Fixed for now.
 
@@ -263,23 +273,29 @@ function buildSendCall(
   token: ChainToken,
   quantity: string
 ): string[] {
-  const sourceChain = from.name;
-  const destChain = to.name;
+  const sourceChain = `"${from.name}"`;
+  const destChain = `"${to.name}"`;
 
-  const setTokenDestChain = `SET_TOKEN_in_${to.name}`;
-  const sendTokenDestChain = token.address;
-  const receiveTokenDestChain = getTokenInChain("USDC", to.name); // hardcoded for now
+  const setTokenDestChain = getSetToken(to.name);
+  const sendTokenDestChain = `"${token.address}"`;
+  const receiveTokenDestChain = `"${getTokenInChain("USDC", to.name)}"`; // hardcoded for now
   const sendQuantityDestChain = 5 * 10 ** 15; // Of WETH for now.
   const minReceiveTokenQuantityDestChain = 0; // For now.
   const poolFeeDestChain = 500; // For now.
-  const lockReleaseTokenDestChain = getTokenInChain(token.symbol, to.name);
+  const lockReleaseTokenDestChain = `"${getTokenInChain(
+    token.symbol,
+    to.name
+  )}"`;
   const lockReleaseQuantity = 5 * 10 ** 15; // Of WETH for now.;
 
   const destActionType = 0; // This is a releaseAndSwap;
 
-  const setTokenSourceChain = `SET_TOKEN_in_${from.name}`;
-  const lockReleaseTokenSourceChain = getTokenInChain(token.symbol, from.name);
-  const useLink = true; // For now.
+  const setTokenSourceChain = getSetToken(from.name);
+  const lockReleaseTokenSourceChain = `"${getTokenInChain(
+    token.symbol,
+    from.name
+  )}"`;
+  const useLink = "True"; // For now.
 
   const variableSendResult = `result_send_${from.name}_${to.name}`;
 
@@ -343,14 +359,19 @@ function parseAllStatements(statements: Statement[]): PythonCode {
   return pythonCode;
 }
 
+const TABS = "\t\t";
+
 export function parse(statements: Statement[]): string {
   const pythonCode = parseAllStatements(statements);
   // Do the join here.
-  const pythonLines = pythonCode.lines.join("\n");
-  const pythonVariables = pythonCode.variables.join("\n");
+  const pythonLines = pythonCode.lines.join(`\n${TABS}`);
+  const pythonVariables = pythonCode.variables.join(`\n${TABS}`);
 
   console.log(pythonVariables);
   console.log(pythonLines);
 
-  return `${pythonVariables}\n${pythonLines}`;
+  // This Tabs are just because the Python code is inside a if/else statements.
+  // There is this warning in VScode but I thinks it's fine.
+  // https://stackoverflow.com/questions/5685406/inconsistent-use-of-tabs-and-spaces-in-indentation
+  return `${TABS}${pythonVariables}\n${TABS}${pythonLines}`;
 }

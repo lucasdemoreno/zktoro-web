@@ -1,37 +1,8 @@
-import { ChainToken, Statement } from "@/providers/ProgramProvider/Statements";
-import {
-  USDC_Avalanche,
-  WETH_Avalanche,
-} from "@/providers/ProgramProvider/Tokens";
-import { USDC_AVALANCHE, WETH_AVALANCHE } from "@/transactions/contracts";
-
-function getTokensFromStatements(statements: Statement[]): {
-  tokenA: ChainToken;
-  tokenB: ChainToken;
-} {
-  console.log(statements);
-  return {
-    tokenA: USDC_Avalanche,
-    tokenB: WETH_Avalanche,
-  };
-}
-
-export function parseStatementsToPythonCode(
-  statements: Statement[],
+export function createPythonFileContent(
+  strategyLines: string,
   setToken_chainA: string,
   setToken_chainB: string
 ): string {
-  const { tokenA, tokenB } = getTokensFromStatements(statements);
-  /**
-     * Also consider [USDC_AVALANCHE, WETH_AVALANCHE] in Polygon
-    if(![USDC_AVALANCHE, WETH_AVALANCHE].includes(tokenA) || ![USDC_AVALANCHE, WETH_AVALANCHE].includes(tokenB)) {
-        throw Error('Not supported yet')
-    }
-     */
-
-  // chainA, in this case is Polygon
-  // chainB in this case is
-
   return `
 from web3 import Web3
 import json
@@ -66,7 +37,46 @@ lpContractAvalanche = web3Avalanche.eth.contract(address = lpAddress, abi = ABI)
 polyBlock = web3Polygon.eth.block_number
 AvalancheBlock = web3Avalanche.eth.block_number
 
+def swap(sourceChain, destChain, setTokenSourceChain, sendTokenSourceChain, sendQuantitySourceChain, receiveTokenSourceChain, minReceiveQuantitySourceChain, poolFeeSourceChain):
+    aaClientSwapEndpoint = 'http://43.156.169.122/swap'
+    swapBody = {
+        sourceChain: sourceChain,
+        destChain: destChain,
 
+        setTokenSourceChain: setTokenAvalanche,
+        sendTokenSourceChain: sendTokenSourceChain,
+        sendQuantitySourceChain: sendQuantitySourceChain,
+        receiveTokenSourceChain: receiveTokenSourceChain,
+        minReceiveQuantitySourceChain: minReceiveQuantitySourceChain,
+        poolFeeSourceChain: poolFeeSourceChain,
+    }
+
+    swapResponse = requests.post(aaClientSwapEndpoint, json = swapBody)
+    return swapResponse.text
+
+def send(sourceChain, destChain, setTokenDestChain, sendTokenDestChain, receiveTokenDestChain, sendQuantityDestChain, minReceiveTokenQuantityDestChain, poolFeeDestChain, lockReleaseTokenDestChain, lockReleaseQuantity, destActionType, setTokenSourceChain, lockReleaseTokenSourceChain, useLink):
+    aaClientSendEndpoint = 'http://43.156.169.122/lockAndSend'
+    sendBody = {
+        sourceChain: sourceChain,
+        destChain: destChain,
+
+        setTokenDestChain: setTokenDestChain,
+        sendTokenDestChain: sendTokenDestChain,
+        receiveTokenDestChain:receiveTokenDestChain,
+        sendQuantityDestChain: sendQuantityDestChain,
+        minReceiveTokenQuantityDestChain: minReceiveTokenQuantityDestChain,
+        poolFeeDestChain: poolFeeDestChain,
+        lockReleaseTokenDestChain: lockReleaseTokenDestChain,
+        lockReleaseQuantity: lockReleaseQuantity,
+
+        destActionType: destActionType,
+
+        setTokenSourceChain: setTokenSourceChain,
+        lockReleaseTokenSourceChain: lockReleaseTokenSourceChain,
+        useLink: useLink,
+    }
+    swapResponse = requests.post(aaClientSendEndpoint, json = sendBody)
+    return swapResponse.text
 
 setTokenPoly = web3Polygon.eth.contract(address = SetTokenPoly,abi =  ERC20ABI)
 setTokenAvalanche = web3Polygon.eth.contract(address = SetTokenAvalanche,abi =  ERC20ABI)
@@ -98,30 +108,6 @@ while True:
         AvalanchePrice = (slot0[0]/(2**96))**2*10**12
         print("Avalanche price ",AvalanchePrice)
 
-        deviation = AvalanchePrice/polygonPrice - 1 
-        print("Current Deviation ",deviation)
-
-        ## Price Feed Done
-
-        /*
-        if( (weth_avax / weth_polygon) > 1.0005):
-            
-            print("Trade Signal [Signal, to, From, Token] : ",tradeSignal)
-        elif ( (weth_avax / weth_polygon) <  0.9995):
-            
-            print("Trade Signal [Signal, to, From, Token] : ",tradeSignal)
-
-        */
-
-        threshold = 0.0005
-        tradeSignal = 0
-        if deviation > threshold:
-            # Change this to a http call
-            tradeSignal = [1,'Avalanche','Polygon','WETH']  # buy from Polygon sell to Avalanche
-            print("Trade Signal [Signal, to, From, Token] : ",tradeSignal)
-        elif deviation <  -threshold:
-            # Change this to a http call
-            tradeSignal = [-1,'Polygon','Avalanche','WETH']  # buy from Avalanche and sell to Polygon
-            print("Trade Signal [Signal, to, From, Token] : ",tradeSignal)
-    `;
+        ${strategyLines}
+        `;
 }
