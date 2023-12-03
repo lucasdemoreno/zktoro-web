@@ -1,7 +1,7 @@
 import { Button, Dialog, Flex, Text } from "@radix-ui/themes";
 import styles from "../Canvas/Canvas.module.css";
 import { useProgram } from "@/providers/ProgramProvider/ProgramProvider";
-import { useCallback, useEffect, useMemo } from "react";
+import { MouseEventHandler, useCallback, useEffect, useMemo } from "react";
 import { ChainToken, Statement } from "@/providers/ProgramProvider/Statements";
 import {
   USDC_Avalanche,
@@ -25,6 +25,7 @@ import { useCreateSetTokenChain } from "@/clientUtils/createSetTokenChain";
 import { tryRegisterVaultPair } from "@/clientUtils/registerVaultPair";
 import { tryCreateDockerImage } from "@/clientUtils/createDockerImage";
 import { useWaitForTransaction } from "wagmi";
+import { useRouter } from "next/navigation";
 
 export const SaveSection = () => {
   return (
@@ -88,14 +89,6 @@ function getDisabledStatusForStep(
   publishStatus: PublishStatus
 ): boolean {
   switch (step) {
-    case "convertToPython":
-      return disabledStatuses.has(publishStatus[step].status);
-
-    case "convertToCircom":
-      if (publishStatus.convertToPython.status !== StepStatusEnum.SUCCESS) {
-        return true;
-      }
-      return disabledStatuses.has(publishStatus[step].status);
     case "createSetTokenChainA":
       if (publishStatus.convertToCircom.status !== StepStatusEnum.SUCCESS) {
         return true;
@@ -109,23 +102,20 @@ function getDisabledStatusForStep(
         return true;
       }
       return disabledStatuses.has(publishStatus[step].status);
-    case "registerVaultPair":
-      if (
-        publishStatus.createSetTokenChainB.status !== StepStatusEnum.SUCCESS
-      ) {
-        return true;
-      }
+    case "convertToPython":
       return disabledStatuses.has(publishStatus[step].status);
     case "createDockerImage":
-      if (publishStatus.registerVaultPair.status !== StepStatusEnum.SUCCESS) {
+      if (publishStatus.convertToPython.status !== StepStatusEnum.SUCCESS) {
         return true;
       }
       return disabledStatuses.has(publishStatus[step].status);
   }
+  return true;
 }
 
 const CreateStrategyModal = () => {
   const { statements } = useProgram();
+  const router = useRouter();
   const { publishStatus, publishDispatch } = useStrategy();
 
   const { tokenA_chainA, tokenA_chainB, tokenB_chainA, tokenB_chainB } =
@@ -153,84 +143,89 @@ const CreateStrategyModal = () => {
     );
 
   const onConvertToPython = useCallback(() => {
-    tryConvertToPython(statements, publishDispatch);
-  }, [publishDispatch, statements]);
-
-  const onConvertToCircom = useCallback(() => {
-    tryConvertToCircom(statements, publishDispatch);
-  }, [publishDispatch, statements]);
-
-  const onRegisterVaultPair = useCallback(() => {
-    const { result: resultSetTokenChainA } = publishStatus.createSetTokenChainA;
-    const { result: resultSetTokenChainB } = publishStatus.createSetTokenChainB;
-    if (!resultSetTokenChainA || !resultSetTokenChainB) {
-      return;
-    }
-    tryRegisterVaultPair(
-      resultSetTokenChainA,
-      resultSetTokenChainB,
+    tryConvertToPython(
+      statements,
+      publishStatus.createSetTokenChainA.result,
+      publishStatus.createSetTokenChainB.result,
       publishDispatch
     );
   }, [
     publishDispatch,
-    publishStatus.createSetTokenChainA,
-    publishStatus.createSetTokenChainB,
+    statements,
+    publishStatus.createSetTokenChainA.result,
+    publishStatus.createSetTokenChainB.result,
   ]);
 
-  const onCreateDockerImage = useCallback(() => {
-    const { result: pythonCode } = publishStatus.convertToPython;
-    const { result: circomCode } = publishStatus.convertToCircom;
-    if (!pythonCode || !circomCode) {
-      return;
+  const onDeploy = useCallback<MouseEventHandler<HTMLButtonElement>>(
+    async (event) => {
+      event.preventDefault();
+      const pythonCode = publishStatus.convertToPython.result;
+      let setTokenChainA = publishStatus.createSetTokenChainA.result;
+      let setTokenChainB = publishStatus.createSetTokenChainB.result;
+
+      // if (!setTokenChainA || !setTokenChainB) {
+      if (!setTokenChainA || !setTokenChainB) {
+        setTokenChainA = "0xEC553087B96e5cE90c19187B1F85A7EF75FA30bB"; // Examples for now POLI
+        setTokenChainB = "0xA443A48dfA97FC86ddEc44A5edD485F9F4211548"; // Examples for now AVAX
+      }
+      if (!pythonCode) {
+        return;
+      }
+      // This is create Docker image + save in database.
+      tryCreateDockerImage(
+        pythonCode,
+        setTokenChainA,
+        setTokenChainB,
+        tokenA_chainA,
+        tokenA_chainB,
+        tokenB_chainA,
+        tokenB_chainB,
+        publishDispatch
+      );
+    },
+    [
+      publishDispatch,
+      publishStatus.convertToPython,
+      publishStatus.createSetTokenChainA,
+      publishStatus.createSetTokenChainB,
+      tokenA_chainA,
+      tokenA_chainB,
+      tokenB_chainA,
+      tokenB_chainB,
+    ]
+  );
+
+  useEffect(() => {
+    if (publishStatus.createDockerImage.status === StepStatusEnum.SUCCESS) {
+      // If we created the docker, that means we are done.
+      const strategyId = publishStatus.createDockerImage.result;
+      if (strategyId) {
+        console.log(strategyId);
+        router.push(`/strategy/${strategyId}`);
+      }
     }
-    tryCreateDockerImage(pythonCode, circomCode, publishDispatch);
   }, [
-    publishDispatch,
-    publishStatus.convertToPython,
-    publishStatus.convertToCircom,
+    publishStatus.createDockerImage.status,
+    publishStatus.createDockerImage.result,
+    router,
   ]);
 
   return (
     <Dialog.Content>
       <Dialog.Title>Create Strategy</Dialog.Title>
       <Dialog.Description>
-        <Flex p="4">
-          Tokens in the Strategy:
+        <Flex py="4">
+          <Text>Tokens in the Strategy:</Text>
           <Flex>{tokens.map((token) => token.name).join(", ")}</Flex>
         </Flex>
-        <Flex direction="column">
-          <Flex p="4" direction="column" gap="4">
+        <Flex py="4" direction="column">
+          <Flex direction="column" gap="4">
             <Flex align="center" gap="4">
               <Button
-                disabled={getDisabledStatusForStep(
-                  "convertToPython",
-                  publishStatus
-                )}
-                onClick={onConvertToPython}
-              >
-                Convert to Python
-              </Button>
-              {getIconFromStatus(publishStatus.convertToPython.status)}
-            </Flex>
-
-            <Flex align="center" gap="4">
-              <Button
-                disabled={getDisabledStatusForStep(
-                  "convertToCircom",
-                  publishStatus
-                )}
-                onClick={onConvertToCircom}
-              >
-                Convert to Circom
-              </Button>
-              {getIconFromStatus(publishStatus.convertToCircom.status)}
-            </Flex>
-            <Flex align="center" gap="4">
-              <Button
-                disabled={getDisabledStatusForStep(
-                  "createSetTokenChainA",
-                  publishStatus
-                )}
+                // disabled={getDisabledStatusForStep(
+                //   "createSetTokenChainA",
+                //   publishStatus
+                // )}
                 onClick={onCreateSetTokenChainA}
               >
                 Create SetToken on ChainA
@@ -239,10 +234,10 @@ const CreateStrategyModal = () => {
             </Flex>
             <Flex align="center" gap="4">
               <Button
-                disabled={getDisabledStatusForStep(
-                  "createSetTokenChainB",
-                  publishStatus
-                )}
+                // disabled={getDisabledStatusForStep(
+                //   "createSetTokenChainB",
+                //   publishStatus
+                // )}
                 onClick={onCreateSetTokenChainB}
               >
                 Create SetToken on ChainB
@@ -251,80 +246,54 @@ const CreateStrategyModal = () => {
             </Flex>
             <Flex align="center" gap="4">
               <Button
-                disabled={getDisabledStatusForStep(
-                  "registerVaultPair",
-                  publishStatus
-                )}
-                onClick={onRegisterVaultPair}
+                // disabled={getDisabledStatusForStep(
+                //   "convertToPython",
+                //   publishStatus
+                // )}
+                onClick={onConvertToPython}
               >
-                Register Vault Pair
+                Convert to Python
               </Button>
-              {getIconFromStatus(publishStatus.registerVaultPair.status)}
-            </Flex>
-            <Flex align="center" gap="4">
-              <Button
-                disabled={getDisabledStatusForStep(
-                  "createDockerImage",
-                  publishStatus
-                )}
-                onClick={onCreateDockerImage}
-              >
-                Create Docker Image
-              </Button>
-              {getIconFromStatus(publishStatus.createDockerImage.status)}
+              {getIconFromStatus(publishStatus.convertToPython.status)}
             </Flex>
           </Flex>
           <Flex direction="column">
             <Text>Logs:</Text>
+            <Flex></Flex>
             <Flex>
               <Text>
-                convertToPython:{" "}
-                {JSON.stringify(publishStatus.convertToPython.result)}
-              </Text>
-            </Flex>
-            <Flex>
-              <Text>
-                convertToCircom:{" "}
-                {JSON.stringify(publishStatus.convertToCircom.result)}
-              </Text>
-            </Flex>
-            <Flex>
-              <Text>
-                createSetTokenChainA:{" "}
+                create SetToken Chain A:{" "}
                 {JSON.stringify(publishStatus.createSetTokenChainA.result)}
               </Text>
             </Flex>
             <Flex>
               <Text>
-                createSetTokenChainB:{" "}
+                create SetToken Chain B:{" "}
                 {JSON.stringify(publishStatus.createSetTokenChainB.result)}
               </Text>
             </Flex>
-            <Flex>
-              <Text>
-                registerVaultPair:{" "}
-                {JSON.stringify(publishStatus.registerVaultPair.result)}
-              </Text>
-            </Flex>
-            <Flex>
-              <Text>
-                createDockerImage:{" "}
-                {JSON.stringify(publishStatus.createDockerImage.result)}
-              </Text>
-            </Flex>
+            <Text>
+              convert to Python:{" "}
+              {publishStatus.createDockerImage.result
+                ? "Done. Logged in console."
+                : ""}
+            </Text>
           </Flex>
         </Flex>
       </Dialog.Description>
       <Dialog.Close>
-        {isCreationFinished ? (
-          <Flex justify="start">
-            <Button color="green">Continue</Button>
-          </Flex>
-        ) : (
-          <Flex justify="end">
-            <Button color="crimson">Cancel</Button>
-          </Flex>
-        )}
+        <Flex justify="between" mt="4">
+          <Button
+            disabled={getDisabledStatusForStep(
+              "createDockerImage",
+              publishStatus
+            )}
+            onClick={onDeploy}
+          >
+            Deploy
+          </Button>
+          <Button color="crimson">Cancel</Button>
+        </Flex>
       </Dialog.Close>
     </Dialog.Content>
   );

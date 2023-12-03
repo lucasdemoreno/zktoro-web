@@ -5,6 +5,7 @@ import {
   strategy3,
   strategy4,
 } from "@/types/browse";
+import { StrategyToCreate } from "@/types/create";
 import { MongoClient, ServerApiVersion } from "mongodb";
 
 let dbConnection: MongoClient | null = null;
@@ -87,4 +88,12 @@ export async function getStrategyById(
     // Handle errors
     return null;
   }
+}
+
+export async function saveStrategyToDB(strategyBody: StrategyToCreate) {
+  const collStrategies = await getCollStrategy();
+  const result = await collStrategies.insertOne(strategyBody);
+
+  console.log("saveStrategyToDB", result, strategyBody.id);
+  return strategyBody.id;
 }

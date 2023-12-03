@@ -3,6 +3,7 @@ import {
   PublishAction,
   StepStatusEnum,
 } from "@/providers/StrategyProvider/StrategyProvider";
+import { StrategyToCreate } from "@/types/create";
 import { Dispatch } from "react";
 
 /**
@@ -13,18 +14,51 @@ import { Dispatch } from "react";
  */
 export async function createDockerImage(
   pythonCode: string,
-  circomCode: string
+  setToken_chainA: string,
+  setToken_chainB: string,
+  tokenA_chainA: ChainToken,
+  tokenB_chainA: ChainToken,
+  tokenA_chainB: ChainToken,
+  tokenB_chainB: ChainToken
 ): Promise<string> {
-  // TODO: Replace this with the actual call to create the docker image
-  const result = `${pythonCode}, ${circomCode}`;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  const strategyToCreate: StrategyToCreate = {
+    id: "",
+    isMocked: false,
+    pythonCode: pythonCode,
+    setToken_chainA,
+    setToken_chainB,
+    tokenA_chainA,
+    tokenB_chainA,
+    tokenA_chainB,
+    tokenB_chainB,
+    name: "Strategy Title",
+    description: "Strategy Description",
+  };
 
-  return result;
+  // This is the request to the Next.js API route
+  const response = await fetch("/api/upload-strategy", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      ...strategyToCreate,
+    }),
+  });
+  const jsonResponse = await response.json();
+  console.log(jsonResponse);
+
+  return jsonResponse.message;
 }
 
 export async function tryCreateDockerImage(
   pythonCode: string,
-  circomCode: string,
+  setToken_chainA: string,
+  setToken_chainB: string,
+  tokenA_chainA: ChainToken,
+  tokenB_chainA: ChainToken,
+  tokenA_chainB: ChainToken,
+  tokenB_chainB: ChainToken,
   publishDispatch: Dispatch<PublishAction>
 ): Promise<void> {
   publishDispatch({
@@ -35,13 +69,21 @@ export async function tryCreateDockerImage(
     },
   });
   try {
-    const setTokenCreated = await createDockerImage(pythonCode, circomCode);
+    const strategyId = await createDockerImage(
+      pythonCode,
+      setToken_chainA,
+      setToken_chainB,
+      tokenA_chainA,
+      tokenB_chainA,
+      tokenA_chainB,
+      tokenB_chainB
+    );
     publishDispatch({
       type: "UPDATE",
       payload: {
         step: "createDockerImage",
         status: StepStatusEnum.SUCCESS,
-        result: setTokenCreated,
+        result: strategyId,
       },
     });
   } catch (e) {

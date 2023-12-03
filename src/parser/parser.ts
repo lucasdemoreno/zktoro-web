@@ -20,7 +20,8 @@ import {
   StatementType,
   SwapStatement,
 } from "../providers/ProgramProvider/Statements";
-import { WETH_AVALANCHE } from "@/transactions/contracts";
+
+const TAB = "    ";
 
 function parseMathExpression(expression: MathExpression): PythonCode {
   const { left, right, operator } = expression;
@@ -162,7 +163,7 @@ function parseIfElseStatement(statement: IfElseStatement): PythonCode {
   if (!conditionLine || !ifStatementsCode.lines) {
     return { variables: [], lines: [] };
   }
-  const tabbedLines = ifStatementsCode.lines.map((line) => `\t${line}`);
+  const tabbedLines = ifStatementsCode.lines.map((line) => `${TAB}${line}`);
 
   lines.push(`if ${conditionLine}:`);
   lines.push(...tabbedLines);
@@ -181,7 +182,7 @@ function parseElseStatement(statement: ElseStatement): PythonCode {
   const variables = [];
   const lines = [];
   const elseStatementsCode = parseAllStatements(elseStatements);
-  const tabbedLines = elseStatementsCode.lines.map((line) => `\t${line}`);
+  const tabbedLines = elseStatementsCode.lines.map((line) => `${TAB}${line}`);
   lines.push(`else:`);
   lines.push(...tabbedLines);
   variables.push(...elseStatementsCode.variables);
@@ -359,13 +360,11 @@ function parseAllStatements(statements: Statement[]): PythonCode {
   return pythonCode;
 }
 
-const TABS = "\t\t";
-
 export function parse(statements: Statement[]): string {
   const pythonCode = parseAllStatements(statements);
   // Do the join here.
-  const pythonLines = pythonCode.lines.join(`\n${TABS}`);
-  const pythonVariables = pythonCode.variables.join(`\n${TABS}`);
+  const pythonLines = pythonCode.lines.join(`\n${TAB}${TAB}`);
+  const pythonVariables = pythonCode.variables.join(`\n${TAB}${TAB}`);
 
   console.log(pythonVariables);
   console.log(pythonLines);
@@ -373,5 +372,5 @@ export function parse(statements: Statement[]): string {
   // This Tabs are just because the Python code is inside a if/else statements.
   // There is this warning in VScode but I thinks it's fine.
   // https://stackoverflow.com/questions/5685406/inconsistent-use-of-tabs-and-spaces-in-indentation
-  return `${TABS}${pythonVariables}\n${TABS}${pythonLines}`;
+  return `${TAB}${TAB}${pythonVariables}\n${TAB}${TAB}${pythonLines}`;
 }

@@ -2,20 +2,16 @@ import { ChainToken } from "@/providers/ProgramProvider/Statements";
 
 export type MockedBrowseStrategy = {
   id: string;
-  address: string;
   isMocked: true;
   name: string;
   description: string;
-  image: string;
 };
 
 export type ProdBrowseStrategy = {
   id: string;
-  address: string;
   name: string;
   description: string;
   isMocked: false;
-  image: string;
   tokenA_chainA: ChainToken;
   tokenB_chainA: ChainToken;
   tokenA_chainB: ChainToken;
@@ -28,7 +24,6 @@ export type BrowseStrategy = ProdBrowseStrategy | MockedBrowseStrategy;
 
 export const strategy1: BrowseStrategy = {
   id: "1",
-  address: "0x1234",
   isMocked: false,
   tokenA_chainA: {
     name: "USDC (Polygon)",
@@ -63,12 +58,10 @@ export const strategy1: BrowseStrategy = {
   name: "Arbitrage Bot",
   description:
     "Capitalize on price differences between USDC and WETH on Polygon and Avalanche, executing swift trades for maximum profitability.",
-  image: "/strategy-1.png",
 };
 
 export const strategy2: BrowseStrategy = {
   id: "2",
-  address: "0x1234",
   isMocked: false,
   tokenA_chainA: {
     name: "USDC (Polygon)",
@@ -103,25 +96,20 @@ export const strategy2: BrowseStrategy = {
   name: "Automated Rebalancing",
   description:
     "Implement an algorithm for continuous portfolio rebalancing, optimizing USDC and WETH allocations between Polygon and Avalanche for maximum returns",
-  image: "/strategy-2.png",
 };
 
 export const strategy3: BrowseStrategy = {
   id: "3",
-  address: "0x1234",
   isMocked: true,
   name: "Price Delta Arbitrage Bot",
   description:
     "Seize opportunities in USDC and WETH price variations between Polygon and Avalanche, executing rapid trades to maximize profits.",
-  image: "/strategy-3.png",
 };
 
 export const strategy4: BrowseStrategy = {
   id: "4",
-  address: "0x1234",
   isMocked: true,
   name: "Dynamic Portfolio Rebalancer",
   description:
     "Employ an algorithm for ongoing portfolio optimization, fine-tuning allocations of USDC and WETH between Polygon and Avalanche to enhance overall returns.",
-  image: "/strategy-4.png",
 };
