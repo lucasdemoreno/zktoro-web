@@ -5,8 +5,7 @@ import {
   strategy3,
   strategy4,
 } from "@/types/browse";
-import { kv } from "@vercel/kv";
-import { MongoClient, ServerApiVersion, WithId, WithoutId } from "mongodb";
+import { MongoClient, ServerApiVersion } from "mongodb";
 
 let dbConnection: MongoClient | null = null;
 
