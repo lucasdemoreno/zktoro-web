@@ -12,7 +12,6 @@ export const HomeCard = ({ title, description }: HomeCardProps) => {
   return (
     <Card size="2" className={styles.card}>
       <Inset clip="padding-box" side="top" pb="current">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <div className={styles.image}>
           <CodeIcon width={40} height={40} />
         </div>

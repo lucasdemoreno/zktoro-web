@@ -6,7 +6,6 @@ import { createBreakpoint } from "react-use";
 import { useEffect, useMemo, useState } from "react";
 
 function getColumnCount(breakpoint: string): string {
-  console.log(breakpoint);
   switch (breakpoint) {
     case "s":
       return "1";

@@ -280,13 +280,7 @@ const MockedStrategyContent = ({
           {strategy.name}
         </Heading>
         <Text as="p" size="3">
-          {strategy.name}
-        </Text>
-        <Text as="p" size="3">
           {strategy.description}
-        </Text>
-        <Text as="p" size="3">
-          {strategy.address}
         </Text>
         <Box mt="4">
           <Button>Invest in Strategy</Button>

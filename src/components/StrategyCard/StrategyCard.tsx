@@ -16,7 +16,6 @@ export const StrategyCard = ({ strategy }: StrategyCardProps) => {
       <NextLink href={`/strategy/${id}`} className={styles.card}>
         <Card size="2">
           <Inset clip="padding-box" side="top" pb="current">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <div className={styles.image}>
               <CodeIcon width={40} height={40} />
             </div>

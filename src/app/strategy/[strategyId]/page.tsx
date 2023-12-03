@@ -18,7 +18,7 @@ export default async function Strategy({
     <main>
       <Topbar />
       <Section p="2">
-        <Flex direction="column" align="center">
+        <Flex direction="column">
           <StrategyProvider>
             <StrategyContent strategy={strategy} />
           </StrategyProvider>
