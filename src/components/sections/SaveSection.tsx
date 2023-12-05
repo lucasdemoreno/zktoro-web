@@ -8,6 +8,7 @@ import {
   USDC_Polygon,
   WETH_Avalanche,
   WETH_Polygon,
+  getChainById,
 } from "@/providers/ProgramProvider/Tokens";
 import {
   CheckCircledIcon,
@@ -228,7 +229,9 @@ const CreateStrategyModal = () => {
                 // )}
                 onClick={onCreateSetTokenChainA}
               >
-                Create SetToken on ChainA
+                {`Create SetToken on ${
+                  getChainById(tokenA_chainA.chainId)?.name
+                }`}
               </Button>
               {getIconFromStatus(publishStatus.createSetTokenChainA.status)}
             </Flex>
@@ -240,7 +243,9 @@ const CreateStrategyModal = () => {
                 // )}
                 onClick={onCreateSetTokenChainB}
               >
-                Create SetToken on ChainB
+                {`Create SetToken on ${
+                  getChainById(tokenA_chainB.chainId)?.name
+                }`}
               </Button>
               {getIconFromStatus(publishStatus.createSetTokenChainB.status)}
             </Flex>
@@ -263,13 +268,13 @@ const CreateStrategyModal = () => {
             <Flex>
               <Text>
                 create SetToken Chain A:{" "}
-                {JSON.stringify(publishStatus.createSetTokenChainA.result)}
+                {/* {publishStatus.createSetTokenChainA.result} */}
               </Text>
             </Flex>
             <Flex>
               <Text>
                 create SetToken Chain B:{" "}
-                {JSON.stringify(publishStatus.createSetTokenChainB.result)}
+                {/* {publishStatus.createSetTokenChainB.result} */}
               </Text>
             </Flex>
             <Text>
