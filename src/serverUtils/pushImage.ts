@@ -1,18 +1,29 @@
+import { StrategyToCreate } from "@/types/create";
 import { execa } from "execa";
 
 export async function pushImage(
-  imageName: string = "zktoro/default_name"
+  strategy: StrategyToCreate,
+  imageName: string = "zktoro/default_name",
 ): Promise<void> {
-  const dockerHubApiUrl = "https://hub.docker.com/v2/";
+  const dockerfilePath = "images/Dockerfile";
 
-  // Docker Hub credentials
-  const username = process.env.DOCKER_HUB_USERNAME;
-  const password = process.env.DOCKER_HUB_PASSWORD;
+  // Directory with strategies to dockerize
+  const contextPath = `images/${strategy.id}/.`;
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  // Build the Docker image
-  await execa("docker", ["build", "-t", imageName, "docker-files/."]);
+
+  await execa("docker", [
+    "build",
+    "-f", dockerfilePath,
+    "--build-arg", `SCRIPT_NAME=${strategy.id}`,
+    "-t", imageName,
+    contextPath
+  ]);
+
 
   await new Promise((resolve) => setTimeout(resolve, 2000));
+
+
   // console.log(`Image built successfully: ${imageName}`);
 
   // try {

@@ -1,10 +1,20 @@
 import { StrategyToCreate } from "@/types/create";
 import { execa } from "execa";
+import * as path from "path";
 
 export async function createFileWithPythonCode(
   strategy: StrategyToCreate
 ): Promise<void> {
-  // Writing pythonCode into ./qwe123-we123-qwe123.py file.
-  // TODO: Check if we need to change permissions for this file.
-  await execa("echo", [strategy.pythonCode]).pipeStdout?.(`${strategy.id}.py`);
+  try {
+    // Creates a directory inside root/images with strategyId if doesnt exists.
+    const dirPath = path.join(process.cwd(),`/images/`, strategy.id);
+    await execa('mkdir', ['-p', dirPath]);
+
+    const filePath = path.join(dirPath, `${strategy.id}.py`);
+
+    await execa('bash', ['-c', `echo "${strategy.pythonCode.replace(/"/g, '\\"')}" > "${filePath}"`]);
+    console.log(`File created at: ${filePath}`);
+  } catch (error) {
+    console.error('Error creating file:', error);
+  }
 }

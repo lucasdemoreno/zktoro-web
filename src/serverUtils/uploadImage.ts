@@ -15,7 +15,7 @@ export async function uploadImage(strategy: StrategyToCreate): Promise<string> {
   console.log("uploading", imageName);
 
   await createFileWithPythonCode(strategy);
-  await pushImage(imageName);
+  await pushImage(strategy, imageName);
 
   return imageName;
 }
