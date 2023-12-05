@@ -3,6 +3,7 @@
 import { StrategyToCreate } from "@/types/create";
 import { createFileWithPythonCode } from "./fileStrategyCreator";
 import { pushImage } from "./pushImage";
+import { removeImageDirectory } from "./removeImageDirectory";
 
 /**
  * TODO: This function should upload the image to the docker
@@ -14,8 +15,9 @@ export async function uploadImage(strategy: StrategyToCreate): Promise<string> {
   const imageName = `zktoro/${strategy.id}`;
   console.log("uploading", imageName);
 
-  await createFileWithPythonCode(strategy);
+  const imageDirectory = await createFileWithPythonCode(strategy);
   await pushImage(strategy, imageName);
 
+  await removeImageDirectory(imageDirectory);
   return imageName;
 }
