@@ -8,6 +8,7 @@ from web3 import Web3
 import json
 import time
 import datetime
+import requests
 abiStr = open('UniswapV3PoolABI.json')
 abiStrERC20 = open('IERC20ABI.json')
 
