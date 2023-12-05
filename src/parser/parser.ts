@@ -245,7 +245,7 @@ function buildSwapCall(
 
   const variableSwapResult = `result_swap_${from.symbol}_${to.symbol}`;
   const swapCall = `${variableSwapResult} = swap(${sourceChain}, ${destChain}, ${setTokenSourceChain}, ${sendTokenSourceChain}, ${sendQuantitySourceChain}, ${receiveTokenSourceChain}, ${minReceiveQuantitySourceChain}, ${poolFeeSourceChain})`;
-  const loggingSwapCall = `print("${variableSwapResult}")`;
+  const loggingSwapCall = `print(${variableSwapResult})`;
   const swapLines = [swapCall, loggingSwapCall];
 
   return swapLines;
@@ -301,7 +301,7 @@ function buildSendCall(
   const variableSendResult = `result_send_${from.name}_${to.name}`;
 
   const sendCall = `${variableSendResult} = send(${sourceChain}, ${destChain}, ${setTokenDestChain}, ${sendTokenDestChain}, ${receiveTokenDestChain}, ${sendQuantityDestChain}, ${minReceiveTokenQuantityDestChain}, ${poolFeeDestChain}, ${lockReleaseTokenDestChain}, ${lockReleaseQuantity}, ${destActionType}, ${setTokenSourceChain}, ${lockReleaseTokenSourceChain}, ${useLink})`;
-  const loggingSendCall = `print("${variableSendResult}")`;
+  const loggingSendCall = `print(${variableSendResult})`;
   const sendLines = [sendCall, loggingSendCall];
 
   return sendLines;
