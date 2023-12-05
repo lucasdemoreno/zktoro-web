@@ -40,8 +40,8 @@ function renderStatement(
           return renderStatement(ifStatement, index, nestedLevel + 1);
         })}
         <Droppable
-          key={`${getDropStatementId(statement.id)}`}
-          id={`${getDropStatementId(statement.id)}`}
+          key={`${getDropStatementId(statement.id, nestedLevel)}`}
+          id={`${getDropStatementId(statement.id, nestedLevel)}`}
           nestedLevel={nestedLevel + 1}
         >{`Drop new statement here`}</Droppable>
       </>
@@ -62,8 +62,8 @@ function renderStatement(
           return renderStatement(elseStatement, index, nestedLevel + 1);
         })}
         <Droppable
-          key={getDropStatementId(statement.id)}
-          id={getDropStatementId(statement.id)}
+          key={getDropStatementId(statement.id, nestedLevel)}
+          id={getDropStatementId(statement.id, nestedLevel)}
           nestedLevel={nestedLevel + 1}
         >{`Drop new statement here`}</Droppable>
       </>
@@ -73,8 +73,9 @@ function renderStatement(
   return <></>;
 }
 
-function getDropStatementId(statementId: string) {
-  return `drop/${statementId}`;
+function getDropStatementId(statementId: string, nestedLevel: number) {
+  const drops = new Array(nestedLevel).fill("drop").join("/");
+  return `${drops}/${statementId}`;
 }
 
 export const CanvasSection = () => {
@@ -86,8 +87,8 @@ export const CanvasSection = () => {
         return renderStatement(statement, index, 1);
       })}
       <Droppable
-        key={getDropStatementId("main")}
-        id={getDropStatementId("main")}
+        key={getDropStatementId("main", 1)}
+        id={getDropStatementId("main", 1)}
         nestedLevel={1}
       >{`Drop new statement here`}</Droppable>
     </Box>

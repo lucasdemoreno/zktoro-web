@@ -164,14 +164,12 @@ function recursiveFind(
   statement: Statement,
   statementId: string
 ): Statement | undefined {
+  console.log("recursiveFind", statement.id, statementId);
   if (statement.id === statementId) {
     return statement;
   }
   if (statement.type === StatementType.IF_ELSE) {
-    let found = statement.data?.ifStatements.find((s) => s.id === statementId);
-    if (found) {
-      return found;
-    }
+    let found: Statement | undefined;
 
     statement.data?.ifStatements.forEach((s) => {
       if (found) return;
@@ -187,15 +185,12 @@ function recursiveFind(
   }
 
   if (statement.type === StatementType.ELSE) {
-    let found = statement.data?.elseStatements.find(
-      (s) => s.id === statementId
-    );
-    if (found) {
-      return found;
-    }
+    let found: Statement | undefined;
 
     statement.data?.elseStatements.forEach((s) => {
-      if (found) return;
+      if (found) {
+        return;
+      }
       const maybeFound = recursiveFind(s, statementId);
       if (maybeFound) {
         found = maybeFound;
@@ -206,7 +201,7 @@ function recursiveFind(
       return found;
     }
   }
-  return statement;
+  return undefined;
 }
 
 export const ProgramProvider = ({ children }: PropsWithChildren) => {
@@ -232,14 +227,26 @@ export const ProgramProvider = ({ children }: PropsWithChildren) => {
   const onStatementsAdded = (statement: Statement, dropId: string) => {
     // The split can give multiple items in the array.
     // If the added statement is inside a nested if else, won't work
-    const [_drop, parentId] = dropId.split("/");
+    const dropsParents = dropId.split("/");
+    const parentId = dropsParents[dropsParents.length - 1];
+    console.log("Drop", dropId, parentId);
     const newStatements = createStatementsFromDropped(statement);
     if (parentId === "main") {
       setStatements(statements.concat(newStatements));
       return;
     }
+    // Do a recursive find, like in the update function.
+    let parentStatement: Statement | undefined;
+    statements.forEach((s) => {
+      if (parentStatement) return;
+      const maybeFound = recursiveFind(s, parentId);
+      if (maybeFound) {
+        console.log(maybeFound);
+        parentStatement = maybeFound;
+      }
+    });
 
-    const parentStatement = statements.find((s) => s.id === parentId);
+    console.log("parentStatement", parentStatement?.id);
     if (
       parentStatement?.type === StatementType.IF_ELSE &&
       parentStatement.data
@@ -260,6 +267,7 @@ export const ProgramProvider = ({ children }: PropsWithChildren) => {
       if (found) return;
       const maybeFound = recursiveFind(s, statement.id);
       if (maybeFound) {
+        console.log(maybeFound);
         found = maybeFound;
       }
     });
