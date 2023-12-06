@@ -16,6 +16,7 @@ import {
   Strong,
   Section,
 } from "@radix-ui/themes";
+import { useCallback, useEffect, useState } from "react";
 import {
   erc20ABI,
   useAccount,
@@ -23,7 +24,12 @@ import {
   useContractWrite,
   usePrepareContractWrite,
 } from "wagmi";
-import { readContract, writeContract } from "wagmi/actions";
+import {
+  fetchBalance,
+  fetchToken,
+  readContract,
+  writeContract,
+} from "wagmi/actions";
 
 type StrategyContentProps = {
   strategy: BrowseStrategy | null;
@@ -50,59 +56,79 @@ function calculateHoldings({
 }
 
 function useChainHoldings(chainId: number, setToken: string): string {
-  const { address, isConnecting, isDisconnected } = useAccount();
-  const {
-    data: balance,
-    isError,
-    isLoading,
-    error,
-  } = useContractRead({
-    address: setToken as `0x${string}`,
-    abi: ISetTokenABI,
-    functionName: "balanceOf",
-    // @ts-ignore
-    args: [address],
-  });
+  const [holdings, setHoldings] = useState<string>("---");
+  // const { address } = useAccount();
+  // const {
+  //   data: balance,
+  //   isError,
+  //   isLoading,
+  //   error,
+  // } = useContractRead({
+  //   address: setToken as `0x${string}`,
+  //   abi: ISetTokenABI,
+  //   functionName: "balanceOf",
+  //   // @ts-ignore
+  //   args: [address],
+  // });
 
-  const { data: totalSupply } = useContractRead({
-    address: setToken as `0x${string}`,
-    abi: ISetTokenABI,
-    functionName: "totalSupply",
-  });
+  // const { data: totalSupply } = useContractRead({
+  //   address: setToken as `0x${string}`,
+  //   abi: ISetTokenABI,
+  //   functionName: "totalSupply",
+  // });
 
-  const {
-    data: positions,
-    isError: isError2,
-    isLoading: isLoading2,
-    error: error2,
-  } = useContractRead({
-    address: setToken as `0x${string}`,
-    abi: ISetTokenABI,
-    functionName: "getPositions",
-    // @ts-ignore
-    args: [],
-  });
+  const fetchHoldings = useCallback(async () => {
+    console.log("chain", getChainById(chainId)?.name);
+    const balanceOf = 0;
+    // const balanceOf = await readContract({
+    //   address: setToken as `0x${string}`,
+    //   chainId,
+    //   abi: ISetTokenABI,
+    //   functionName: "balanceOf",
+    //   args: [setToken as `0x${string}`],
+    // });
 
-  console.log("balance", balance);
-  console.log("totalSupply", totalSupply);
-  console.log("positions", positions);
-  const holdings = calculateHoldings({ balance: undefined, positions });
+    const balance = await fetchBalance({
+      address: setToken as `0x${string}`,
+      chainId,
+    });
+    const token = await fetchToken({
+      address: setToken as `0x${string}`,
+      chainId,
+    });
+    const positions = await readContract({
+      address: setToken as `0x${string}`,
+      chainId,
+      abi: ISetTokenABI,
+      functionName: "getPositions",
+      // args: [],
+    });
+
+    console.log(balanceOf, balance, token, positions);
+  }, [chainId, setToken]);
+
+  useEffect(() => {
+    fetchHoldings();
+  }, [fetchHoldings]);
 
   return holdings;
 }
 
 const StrategyHoldings = ({ strategy }: { strategy: ProdBrowseStrategy }) => {
   // TODO: clean up this one.
-  const { tokenA_chainA, tokenA_chainB, setToken_chainA, setToken_chainB } =
+  const setTokenChainA = "0xE91d6553550dbC6c57F0FAaee21345aFbB597C62"; // Examples for now POLI
+  const setTokenChainB = "0xd2fcb441bda55a3f4c7dc10322a7c6193111933a"; // Examples for now AVAX
+  const { tokenA_chainA, tokenB_chainB, setToken_chainA, setToken_chainB } =
     strategy;
+  console.log(strategy);
   const chainAHoldings = useChainHoldings(
     tokenA_chainA.chainId,
-    setToken_chainA
+    setTokenChainA
   );
-  // const chainBHoldings = useChainHoldings(
-  //   tokenA_chainB.chainId,
-  //   setToken_chainB
-  // );
+  const chainBHoldings = useChainHoldings(
+    tokenB_chainB.chainId,
+    setToken_chainB
+  );
 
   return (
     <Flex direction="column">
@@ -158,6 +184,7 @@ function useApproveAllowance(
     writeB?.();
     // write?.();
   };
+
   console.log("console.log(isLoading, isSuccess, approveData, error);");
   // console.log(isLoading, isSuccess, approveData, error);
   console.log(isLoadingB, isSuccessB, approveDataB, errorB);

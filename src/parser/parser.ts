@@ -351,7 +351,15 @@ function parseAllStatements(statements: Statement[]): PythonCode {
     variables: [],
     lines: [],
   };
-  statements.forEach((statement) => {
+  statements.forEach((statement, index) => {
+    // Special case for Swap after a Send.
+    if (
+      statement.type === StatementType.SWAP &&
+      statements[index - 1]?.type === StatementType.SEND
+    ) {
+      // This is because, we do everything in the same call.
+      return;
+    }
     const code = parseSentence(statement);
     pythonCode.variables.push(...code.variables);
     pythonCode.lines.push(...code.lines);

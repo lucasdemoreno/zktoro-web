@@ -47,7 +47,7 @@ export async function tryConvertToPython(
       setToken_chainA,
       setToken_chainB
     );
-    console.log(pythonConvertion);
+    // console.log(pythonConvertion);
     publishDispatch({
       type: "UPDATE",
       payload: {

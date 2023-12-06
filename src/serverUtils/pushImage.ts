@@ -30,24 +30,24 @@ export async function pushImage(
 
   console.log(`Image built successfully: ${imageName}`);
 
-  // try {
-  //   // Authenticate with Docker Hub
-  //   const responseLogin = await fetch(`${dockerHubApiUrl}users/login/`, {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ username, password }),
-  //   });
+  try {
+    // Authenticate with Docker Hub
+    const responseLogin = await fetch(`${dockerHubApiUrl}users/login/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
 
-  //   const data = await responseLogin.json();
-  //   console.log("Authentication successful with Docker Hub");
+    const data = await responseLogin.json();
+    console.log("Authentication successful with Docker Hub");
 
-  //   // Push the image to Docker Hub using execa
-  //   await execa("docker", ["push", imageName]);
-  //   console.log(`Image push successful to Docker Hub: ${imageName}`);
-  // } catch (e) {
-  //   const error = e as Error;
-  //   console.error(
-  //     `Error in authenticating with Docker Hub or pushing the image: ${error.message}`
-  //   );
-  // }
+    // Push the image to Docker Hub using execa
+    await execa("docker", ["push", imageName]);
+    console.log(`Image push successful to Docker Hub: ${imageName}`);
+  } catch (e) {
+    const error = e as Error;
+    console.error(
+      `Error in authenticating with Docker Hub or pushing the image: ${error.message}`
+    );
+  }
 }

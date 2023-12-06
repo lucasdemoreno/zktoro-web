@@ -21,7 +21,6 @@ export function useCreateSetTokenChain(
   publishDispatch: Dispatch<PublishAction>
 ): UseCreateTokenResult {
   const chain = getChainSC(tokenA.chainId);
-  const [setTokenCreated, setSetTokenCreated] = useState<string | null>(null);
 
   const onCreateSetTokenChain = useCallback(async () => {
     try {
@@ -61,13 +60,12 @@ export function useCreateSetTokenChain(
         if (result) {
           const parsedResult = trim(result);
           console.log(parsedResult);
-          setSetTokenCreated(parsedResult);
           publishDispatch({
             type: "UPDATE",
             payload: {
               step,
               status: StepStatusEnum.SUCCESS,
-              result: setTokenCreated,
+              result: parsedResult,
             },
           });
         }
@@ -91,7 +89,7 @@ export function useCreateSetTokenChain(
         },
       });
     }
-  }, [publishDispatch, step, tokenA, tokenB, setTokenCreated, chain]);
+  }, [publishDispatch, step, tokenA, tokenB, chain]);
 
   if (tokenA.chainId !== tokenB.chainId) {
     throw new Error("Chain 1 and Chain 2 must be the same");

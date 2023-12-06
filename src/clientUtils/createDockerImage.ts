@@ -21,6 +21,10 @@ export async function createDockerImage(
   tokenA_chainB: ChainToken,
   tokenB_chainB: ChainToken
 ): Promise<string> {
+  const date = new Date();
+  const dateString = date.toLocaleDateString();
+  const timeString = date.toLocaleTimeString();
+  const tokenStrings = `${tokenA_chainA.symbol}, ${tokenB_chainA.symbol}, ${tokenA_chainB.symbol}, ${tokenB_chainB.symbol}`;
   const strategyToCreate: StrategyToCreate = {
     id: "",
     isMocked: false,
@@ -31,8 +35,8 @@ export async function createDockerImage(
     tokenB_chainA,
     tokenA_chainB,
     tokenB_chainB,
-    name: "New Strategy Title",
-    description: "Strategy Description",
+    name: `New Strategy ${dateString} ${timeString}`,
+    description: `Strategy with ${tokenStrings}`,
   };
 
   // This is the request to the Next.js API route
