@@ -60,7 +60,10 @@ export async function getAllStrategies(): Promise<BrowseStrategy[]> {
 
   try {
     const collStrategies = await getCollStrategy();
-    const dbStrategies = await collStrategies.find({}).toArray();
+    const dbStrategies = await collStrategies
+      .find({})
+      .sort({ _id: -1 })
+      .toArray();
     const strategies: BrowseStrategy[] = dbStrategies as any[];
 
     return strategies;

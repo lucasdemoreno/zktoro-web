@@ -1,4 +1,4 @@
-import { Box } from "@radix-ui/themes";
+import { Box, Text } from "@radix-ui/themes";
 import styles from "../Canvas/Canvas.module.css";
 import { useProgram } from "@/providers/ProgramProvider/ProgramProvider";
 import { DraggableStatement, Droppable } from "../Canvas/Blocks";
@@ -43,7 +43,9 @@ function renderStatement(
           key={`${getDropStatementId(statement.id, nestedLevel)}`}
           id={`${getDropStatementId(statement.id, nestedLevel)}`}
           nestedLevel={nestedLevel + 1}
-        >{`Drop new statement here`}</Droppable>
+        >
+          <Text size="2">Drop here</Text>
+        </Droppable>
       </>
     );
   }
@@ -65,7 +67,9 @@ function renderStatement(
           key={getDropStatementId(statement.id, nestedLevel)}
           id={getDropStatementId(statement.id, nestedLevel)}
           nestedLevel={nestedLevel + 1}
-        >{`Drop new statement here`}</Droppable>
+        >
+          <Text size="2">Drop here</Text>
+        </Droppable>
       </>
     );
   }
@@ -90,7 +94,9 @@ export const CanvasSection = () => {
         key={getDropStatementId("main", 1)}
         id={getDropStatementId("main", 1)}
         nestedLevel={1}
-      >{`Drop new statement here`}</Droppable>
+      >
+        <Text size="2">Drop here</Text>
+      </Droppable>
     </Box>
   );
 };

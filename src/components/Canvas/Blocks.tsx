@@ -58,7 +58,8 @@ export const Droppable = ({
         style={style}
         className={styles.droppable}
         display="inline-block"
-        p="4"
+        py="1"
+        px="4"
       >
         {children}
       </Box>
@@ -118,6 +119,7 @@ export const DraggableStatement = ({
             onClick={handleRemove}
             className={styles.removeButton}
             variant="solid"
+            size="1"
           >
             <TrashIcon />
           </Button>
@@ -223,6 +225,7 @@ const SwapBlock = ({ statement }: { statement: SwapStatement }) => {
         size="1"
         value={statement.data.amount}
         onChange={onAmountChange}
+        style={{ maxWidth: "60px", minWidth: "40px" }}
       />
 
       <SwapTokenOption
@@ -310,11 +313,11 @@ const SendBlock = ({ statement }: { statement: SendStatement }) => {
   return (
     <>
       <Text>{statement.label}</Text>
-      {/* This would be a more complex expression */}
       <TextField.Input
         size="1"
         value={statement.data.amount}
         onChange={onAmountChange}
+        style={{ maxWidth: "60px", minWidth: "40px" }}
       />
       <SwapTokenOption
         tokenSelected={statement.data.token}
@@ -429,7 +432,11 @@ const ComparatorComponent = ({
     [onOperatorChange]
   );
   return (
-    <Select.Root defaultValue={operator} onValueChange={handleOperatorChange}>
+    <Select.Root
+      defaultValue={operator}
+      onValueChange={handleOperatorChange}
+      size="1"
+    >
       <Select.Trigger />
       <Select.Content>
         <Select.Item value={ComparisonOperator.EQUAL}>==</Select.Item>
@@ -531,6 +538,7 @@ const IfExpression = ({
           size="1"
           onChange={handleNumberChange}
           value={expression}
+          style={{ maxWidth: "60px", minWidth: "40px" }}
         />
       );
     }
@@ -577,21 +585,23 @@ const IfExpression = ({
       {expressionValue}
       <DropdownMenu.Root>
         <DropdownMenu.Trigger>
-          <Button variant="surface" size="1">
-            <CaretDownIcon />
-          </Button>
+          <Box>
+            <Button variant="surface" size="1">
+              <CaretDownIcon />
+            </Button>
+          </Box>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content>
           <DropdownMenu.Item
             onSelect={handleDropdownChange("complex expression")}
           >
-            token price operator token price
+            Deviation
           </DropdownMenu.Item>
           <DropdownMenu.Item onSelect={handleDropdownChange("number")}>
-            number
+            Number
           </DropdownMenu.Item>
           <DropdownMenu.Item onSelect={handleDropdownChange("token price")}>
-            token price
+            tokenPrice
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Root>
@@ -613,15 +623,21 @@ const MathOperatorComponent = ({
     [onOperatorChange]
   );
   return (
-    <Select.Root defaultValue={operator} onValueChange={handleOperatorChange}>
-      <Select.Trigger />
-      <Select.Content>
-        <Select.Item value={MathOperator.ADD}>+</Select.Item>
-        <Select.Item value={MathOperator.SUBTRACT}>-</Select.Item>
-        <Select.Item value={MathOperator.MULTIPLY}>*</Select.Item>
-        <Select.Item value={MathOperator.DIVIDE}>/</Select.Item>
-      </Select.Content>
-    </Select.Root>
+    <Flex align="center">
+      <Select.Root
+        defaultValue={operator}
+        onValueChange={handleOperatorChange}
+        size="1"
+      >
+        <Select.Trigger />
+        <Select.Content>
+          <Select.Item value={MathOperator.ADD}>+</Select.Item>
+          <Select.Item value={MathOperator.SUBTRACT}>-</Select.Item>
+          <Select.Item value={MathOperator.MULTIPLY}>x</Select.Item>
+          <Select.Item value={MathOperator.DIVIDE}>/</Select.Item>
+        </Select.Content>
+      </Select.Root>
+    </Flex>
   );
 };
 
@@ -646,6 +662,7 @@ const TokenExpression = ({
     <Select.Root
       defaultValue={expression.name}
       onValueChange={handleTokenChange}
+      size="1"
     >
       <Select.Trigger />
       <Select.Content>
@@ -680,6 +697,7 @@ const SwapTokenOption = ({
     <Select.Root
       defaultValue={tokenSelected.name}
       onValueChange={handleTokenChange}
+      size="1"
     >
       <Select.Trigger />
       <Select.Content>
@@ -714,6 +732,7 @@ const SwapChainOption = ({
     <Select.Root
       defaultValue={chainSelected.name}
       onValueChange={handleChainChange}
+      size="1"
     >
       <Select.Trigger />
       <Select.Content>

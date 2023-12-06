@@ -166,8 +166,8 @@ const CreateStrategyModal = () => {
 
       // if (!setTokenChainA || !setTokenChainB) {
       if (!setTokenChainA || !setTokenChainB) {
-        setTokenChainA = "0xEC553087B96e5cE90c19187B1F85A7EF75FA30bB"; // Examples for now POLI
-        setTokenChainB = "0xA443A48dfA97FC86ddEc44A5edD485F9F4211548"; // Examples for now AVAX
+        setTokenChainA = "0xE91d6553550dbC6c57F0FAaee21345aFbB597C62"; // Examples for now POLI
+        setTokenChainB = "0xd2fcb441bda55a3f4c7dc10322a7c6193111933a"; // Examples for now AVAX
       }
       if (!pythonCode) {
         return;

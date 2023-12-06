@@ -38,6 +38,7 @@
   color: var(--cyan-2);
   border-radius: var(--radius-3);
   cursor: pointer;
+  padding-inline: 8px;
 }
 
 .droppable {

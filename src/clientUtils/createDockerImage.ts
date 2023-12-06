@@ -31,7 +31,7 @@ export async function createDockerImage(
     tokenB_chainA,
     tokenA_chainB,
     tokenB_chainB,
-    name: "Strategy Title",
+    name: "New Strategy Title",
     description: "Strategy Description",
   };
 

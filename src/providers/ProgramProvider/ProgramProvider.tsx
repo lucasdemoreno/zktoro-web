@@ -10,12 +10,19 @@ import {
   ComparisonOperator,
   ElseStatement,
   IfElseStatement,
+  MathOperator,
   SendStatement,
   Statement,
   StatementType,
   SwapStatement,
 } from "./Statements";
-import { Avalanche, Polygon, USDC_Avalanche, WETH_Avalanche } from "./Tokens";
+import {
+  Avalanche,
+  Polygon,
+  USDC_Avalanche,
+  WETH_Avalanche,
+  WETH_Polygon,
+} from "./Tokens";
 
 type ProgramContextValue = {
   statements: Statement[];
@@ -33,7 +40,7 @@ function createStatementsFromDropped(statement: Statement): Statement[] {
         from: USDC_Avalanche,
         to: WETH_Avalanche,
         chain: Avalanche,
-        amount: "1",
+        amount: "100%",
       },
     };
     return [swapStatement];
@@ -47,7 +54,7 @@ function createStatementsFromDropped(statement: Statement): Statement[] {
         token: WETH_Avalanche,
         to: Avalanche,
         from: Polygon,
-        amount: "1",
+        amount: "100%",
       },
     };
     return [sendStatement];
@@ -76,7 +83,11 @@ function createStatementsFromDropped(statement: Statement): Statement[] {
       ...statement.data,
       ifStatements: [],
       condition: {
-        left: "2",
+        left: {
+          operator: MathOperator.DIVIDE,
+          left: WETH_Avalanche,
+          right: WETH_Polygon,
+        },
         right: "1",
         operator: ComparisonOperator.GREATER_THAN,
       },
