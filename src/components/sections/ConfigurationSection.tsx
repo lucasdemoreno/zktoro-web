@@ -35,6 +35,7 @@ export const ConfigurationSection = () => {
         <Box>
           <Text size="1">Lifespan</Text>
           <TextField.Input
+            disabled
             size="1"
             onChange={handleChange("lifespan")}
             placeholder="1"
@@ -43,6 +44,7 @@ export const ConfigurationSection = () => {
         <Box>
           <Text size="1">Max Liquidity</Text>
           <TextField.Input
+            disabled
             size="1"
             onChange={handleChange("maxLiquidity")}
             placeholder="10000"
@@ -51,6 +53,7 @@ export const ConfigurationSection = () => {
         <Box>
           <Text size="1">Author</Text>
           <TextField.Input
+            disabled
             size="1"
             onChange={handleChange("author")}
             placeholder=""
@@ -59,6 +62,7 @@ export const ConfigurationSection = () => {
         <Box>
           <Text size="1">Sharpe Ratio</Text>
           <TextField.Input
+            disabled
             size="1"
             onChange={handleChange("sharpeRatio")}
             placeholder="1.2"
@@ -67,6 +71,7 @@ export const ConfigurationSection = () => {
         <Box>
           <Text size="1">Standard Deviation</Text>
           <TextField.Input
+            disabled
             size="1"
             onChange={handleChange("standardDeviation")}
             placeholder="0.2"
@@ -75,6 +80,7 @@ export const ConfigurationSection = () => {
         <Box>
           <Text size="1">Max Drawdown</Text>
           <TextField.Input
+            disabled
             size="1"
             onChange={handleChange("maxDrawdown")}
             placeholder="1000"
@@ -83,6 +89,7 @@ export const ConfigurationSection = () => {
         <Box>
           <Text size="1">Frequency</Text>
           <TextField.Input
+            disabled
             size="1"
             onChange={handleChange("frequency")}
             placeholder="3"

@@ -371,6 +371,7 @@ function parseAllStatements(statements: Statement[]): PythonCode {
 export function parse(statements: Statement[]): string {
   const pythonCode = parseAllStatements(statements);
   // Do the join here.
+  // TODO: Here do the replacement for the Circom code.
   const pythonLines = pythonCode.lines.join(`\n${TAB}${TAB}`);
   const pythonVariables = pythonCode.variables.join(`\n${TAB}${TAB}`);
 
@@ -380,5 +381,5 @@ export function parse(statements: Statement[]): string {
   // This Tabs are just because the Python code is inside a if/else statements.
   // There is this warning in VScode but I thinks it's fine.
   // https://stackoverflow.com/questions/5685406/inconsistent-use-of-tabs-and-spaces-in-indentation
-  return `${TAB}${TAB}${pythonVariables}\n${TAB}${TAB}${pythonLines}`;
+  return `${TAB}${pythonVariables}\n${TAB}${pythonLines}`;
 }

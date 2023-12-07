@@ -9,6 +9,8 @@ import json
 import time
 import datetime
 import requests
+
+print('Hola')
 abiStr = open('UniswapV3PoolABI.json')
 abiStrERC20 = open('IERC20ABI.json')
 
@@ -82,33 +84,19 @@ def send(sourceChain, destChain, setTokenDestChain, sendTokenDestChain, receiveT
 setTokenPoly = web3Polygon.eth.contract(address = SetTokenPoly,abi =  ERC20ABI)
 setTokenAvalanche = web3Polygon.eth.contract(address = SetTokenAvalanche,abi =  ERC20ABI)
 
+## Only if invested !
+if setTokenPoly.functions.totalSupply().call() > 0 and setTokenAvalanche.functions.totalSupply().call() > 0 :
 
-while True:
-    newPolyBlock = web3Polygon.eth.block_number
-    newAvalancheBlock =  web3Avalanche.eth.block_number
-    if (newPolyBlock != polyBlock):
-        polyBlock = newPolyBlock
-        print("New Polygon Block triggered!")
-    elif (newAvalancheBlock  != AvalancheBlock):
-        AvalancheBlock = newAvalancheBlock
-        print("New Avalanche Block triggered!")
-    else:
-        time.sleep(10)
-        continue
+    print("Check at ", datetime.datetime.now())
+    ## Price Feed
+    slot0 = lpContractPoly.functions.slot0().call()
+    polygonPrice = 10**12/(slot0[0]/(2**96))**2
     
-    ## Only if invested !
-    if setTokenPoly.functions.totalSupply().call() > 0 and setTokenAvalanche.functions.totalSupply().call() > 0 :
+    print("Polygon Price: ",polygonPrice)
+    slot0 = lpContractAvalanche.functions.slot0().call()
+    AvalanchePrice = (slot0[0]/(2**96))**2*10**12
+    print("Avalanche price ",AvalanchePrice)
 
-        print("Check at ", datetime.datetime.now())
-        ## Price Feed
-        slot0 = lpContractPoly.functions.slot0().call()
-        polygonPrice = 10**12/(slot0[0]/(2**96))**2
-        
-        print("Polygon Price: ",polygonPrice)
-        slot0 = lpContractAvalanche.functions.slot0().call()
-        AvalanchePrice = (slot0[0]/(2**96))**2*10**12
-        print("Avalanche price ",AvalanchePrice)
-
-        ${strategyLines}
-        `;
+    ${strategyLines}
+    `;
 }

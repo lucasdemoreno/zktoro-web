@@ -1,5 +1,6 @@
 "use client";
 import { WETH_Polygon, getChainById } from "@/providers/ProgramProvider/Tokens";
+import { switchToNetworkIfNeeded } from "@/providers/WagmiProvider/wagmiUtils";
 import { IBasicIssuanceModuleABI, ISetTokenABI } from "@/transactions/abi";
 import { WETH_POLYGON, getChainSC } from "@/transactions/contracts";
 import {
@@ -27,6 +28,7 @@ import {
 import {
   fetchBalance,
   fetchToken,
+  getNetwork,
   readContract,
   writeContract,
 } from "wagmi/actions";
@@ -57,36 +59,16 @@ function calculateHoldings({
 
 function useChainHoldings(chainId: number, setToken: string): string {
   const [holdings, setHoldings] = useState<string>("---");
-  // const { address } = useAccount();
-  // const {
-  //   data: balance,
-  //   isError,
-  //   isLoading,
-  //   error,
-  // } = useContractRead({
-  //   address: setToken as `0x${string}`,
-  //   abi: ISetTokenABI,
-  //   functionName: "balanceOf",
-  //   // @ts-ignore
-  //   args: [address],
-  // });
-
-  // const { data: totalSupply } = useContractRead({
-  //   address: setToken as `0x${string}`,
-  //   abi: ISetTokenABI,
-  //   functionName: "totalSupply",
-  // });
 
   const fetchHoldings = useCallback(async () => {
     console.log("chain", getChainById(chainId)?.name);
-    const balanceOf = 0;
-    // const balanceOf = await readContract({
-    //   address: setToken as `0x${string}`,
-    //   chainId,
-    //   abi: ISetTokenABI,
-    //   functionName: "balanceOf",
-    //   args: [setToken as `0x${string}`],
-    // });
+    const balanceOf = await readContract({
+      address: setToken as `0x${string}`,
+      chainId,
+      abi: ISetTokenABI,
+      functionName: "balanceOf",
+      args: [setToken as `0x${string}`],
+    });
 
     const balance = await fetchBalance({
       address: setToken as `0x${string}`,
@@ -103,6 +85,7 @@ function useChainHoldings(chainId: number, setToken: string): string {
       functionName: "getPositions",
       // args: [],
     });
+    // totalSupply()/10**18*getPositions() = Total no. of token inside
 
     console.log(balanceOf, balance, token, positions);
   }, [chainId, setToken]);
@@ -116,14 +99,14 @@ function useChainHoldings(chainId: number, setToken: string): string {
 
 const StrategyHoldings = ({ strategy }: { strategy: ProdBrowseStrategy }) => {
   // TODO: clean up this one.
-  const setTokenChainA = "0xE91d6553550dbC6c57F0FAaee21345aFbB597C62"; // Examples for now POLI
-  const setTokenChainB = "0xd2fcb441bda55a3f4c7dc10322a7c6193111933a"; // Examples for now AVAX
+  // const setTokenChainA = "0xE91d6553550dbC6c57F0FAaee21345aFbB597C62"; // Examples for now POLI
+  // const setTokenChainB = "0xd2fcb441bda55a3f4c7dc10322a7c6193111933a"; // Examples for now AVAX
   const { tokenA_chainA, tokenB_chainB, setToken_chainA, setToken_chainB } =
     strategy;
   console.log(strategy);
   const chainAHoldings = useChainHoldings(
     tokenA_chainA.chainId,
-    setTokenChainA
+    setToken_chainA
   );
   const chainBHoldings = useChainHoldings(
     tokenB_chainB.chainId,
@@ -142,57 +125,6 @@ const StrategyHoldings = ({ strategy }: { strategy: ProdBrowseStrategy }) => {
   );
 };
 
-function useApproveAllowance(
-  tokenA: string,
-  tokenB: string,
-  issuanceAddress: `0x${string}`,
-  quantityA: bigint,
-  quantityB: bigint
-) {
-  // const { config } = usePrepareContractWrite({
-  //   address: tokenA as `0x${string}`,
-  //   abi: erc20ABI,
-  //   functionName: "approve",
-  //   args: [issuanceAddress as `0x${string}`, quantityA],
-  // });
-
-  const { config: configB } = usePrepareContractWrite({
-    address: tokenB as `0x${string}`,
-    abi: erc20ABI,
-    functionName: "approve",
-    args: [issuanceAddress as `0x${string}`, quantityB],
-  });
-
-  // const {
-  //   data: approveData,
-  //   isLoading,
-  //   isSuccess,
-  //   write,
-  //   error,
-  // } = useContractWrite(config);
-
-  const {
-    data: approveDataB,
-    isLoading: isLoadingB,
-    isSuccess: isSuccessB,
-    write: writeB,
-    error: errorB,
-  } = useContractWrite(configB);
-
-  const onApproveAllowance = () => {
-    console.log(errorB, writeB, approveDataB, isLoadingB);
-    writeB?.();
-    // write?.();
-  };
-
-  console.log("console.log(isLoading, isSuccess, approveData, error);");
-  // console.log(isLoading, isSuccess, approveData, error);
-  console.log(isLoadingB, isSuccessB, approveDataB, errorB);
-
-  return {
-    onApproveAllowance,
-  };
-}
 // "0x36f6f87376ed363cf08524be282dcce129b64985b1a677f4c6c3106ba8b5bc14"
 // from the approve allowance
 
@@ -204,48 +136,115 @@ const ProdStrategyContent = ({
   const { address, isConnecting, isDisconnected } = useAccount();
   const tokenA_chainA = strategy.tokenA_chainA.address as `0x${string}`;
   const tokenB_chainA = strategy.tokenB_chainA.address as `0x${string}`;
+  const tokenA_chainB = strategy.tokenA_chainB.address as `0x${string}`;
+  const tokenB_chainB = strategy.tokenB_chainB.address as `0x${string}`;
   const setToken_chainA = strategy.setToken_chainA as `0x${string}`;
+  const setToken_chainB = strategy.setToken_chainB as `0x${string}`;
   const chainSC = getChainSC(strategy.tokenA_chainA.chainId);
-  const _quantityA = BigInt(1 * 10 ** (strategy.tokenA_chainA.decimals - 3));
-  const _quantityB = BigInt(1 * 10 ** (strategy.tokenA_chainB.decimals - 3));
-
-  // const { onApproveAllowance } = useApproveAllowance(
-  //   tokenA_chainA,
-  //   tokenB_chainA,
-  //   chainSC.BasicIssuanceModuleAddress as `0x${string}`,
-  //   _quantityA,
-  //   _quantityB
-  // );
+  const _quantityAA = BigInt(1 * 10 ** (strategy.tokenA_chainA.decimals - 3));
+  const _quantityBA = BigInt(1 * 10 ** (strategy.tokenB_chainA.decimals - 3));
+  const _quantityAB = BigInt(1 * 10 ** (strategy.tokenA_chainB.decimals - 3));
+  const _quantityBB = BigInt(1 * 10 ** (strategy.tokenB_chainB.decimals - 3));
 
   // TODO: Clean up this.
   const onApproveAllowance = async () => {
+    const network = await switchToNetworkIfNeeded(
+      strategy.tokenA_chainA.chainId
+    );
+    const chainSC = getChainSC(strategy.tokenA_chainA.chainId);
     const data = await writeContract({
       address: tokenA_chainA as `0x${string}`,
       abi: erc20ABI,
       functionName: "approve",
-      args: [chainSC.BasicIssuanceModuleAddress as `0x${string}`, _quantityA],
+      args: [chainSC.BasicIssuanceModuleAddress as `0x${string}`, _quantityAA],
     });
     console.log(data);
+    const network2 = await switchToNetworkIfNeeded(
+      strategy.tokenB_chainA.chainId
+    );
+    const chainSC2 = getChainSC(strategy.tokenB_chainA.chainId);
+    const data2 = await writeContract({
+      address: tokenB_chainA as `0x${string}`,
+      abi: erc20ABI,
+      functionName: "approve",
+      args: [chainSC2.BasicIssuanceModuleAddress as `0x${string}`, _quantityBA],
+    });
+    console.log(data2);
+    const network3 = await switchToNetworkIfNeeded(
+      strategy.tokenA_chainB.chainId
+    );
+    const chainSC3 = getChainSC(strategy.tokenA_chainB.chainId);
+    const data3 = await writeContract({
+      address: tokenA_chainB as `0x${string}`,
+      abi: erc20ABI,
+      functionName: "approve",
+      args: [chainSC3.BasicIssuanceModuleAddress as `0x${string}`, _quantityAB],
+    });
+    console.log(data3);
+    const network4 = await switchToNetworkIfNeeded(
+      strategy.tokenB_chainB.chainId
+    );
+    const chainSC4 = getChainSC(strategy.tokenB_chainB.chainId);
+    const data4 = await writeContract({
+      address: tokenB_chainB as `0x${string}`,
+      abi: erc20ABI,
+      functionName: "approve",
+      args: [chainSC4.BasicIssuanceModuleAddress as `0x${string}`, _quantityBB],
+    });
+    console.log(data4);
   };
 
   const onIssue = async () => {
+    const network = await switchToNetworkIfNeeded(
+      strategy.tokenA_chainA.chainId
+    );
+    // Check that the setTokens are correct per chain.
     const data = await writeContract({
       address: chainSC.BasicIssuanceModuleAddress as `0x${string}`,
       abi: IBasicIssuanceModuleABI,
       functionName: "issue",
-      args: [setToken_chainA, _quantityA, address as `0x${string}`],
+      args: [setToken_chainA, _quantityAA, address as `0x${string}`],
     });
     console.log(data);
+
+    const network2 = await switchToNetworkIfNeeded(
+      strategy.tokenB_chainB.chainId
+    );
+    const chainSC2 = getChainSC(strategy.tokenB_chainB.chainId);
+    // Check that the setTokens are correct per chain.
+    const data2 = await writeContract({
+      address: chainSC2.BasicIssuanceModuleAddress as `0x${string}`,
+      abi: IBasicIssuanceModuleABI,
+      functionName: "issue",
+      args: [setToken_chainB, _quantityBB, address as `0x${string}`],
+    });
+    console.log(data2);
   };
 
   const onRedeem = async () => {
+    const network = await switchToNetworkIfNeeded(
+      strategy.tokenA_chainA.chainId
+    );
+    // Check that the setTokens are correct per chain.
     const data = await writeContract({
       address: chainSC.BasicIssuanceModuleAddress as `0x${string}`,
       abi: IBasicIssuanceModuleABI,
       functionName: "redeem",
-      args: [setToken_chainA, _quantityA, address as `0x${string}`],
+      args: [setToken_chainA, _quantityAA, address as `0x${string}`],
     });
     console.log(data);
+
+    const network2 = await switchToNetworkIfNeeded(
+      strategy.tokenB_chainB.chainId
+    );
+    // Check that the setTokens are correct per chain.
+    const data2 = await writeContract({
+      address: chainSC.BasicIssuanceModuleAddress as `0x${string}`,
+      abi: IBasicIssuanceModuleABI,
+      functionName: "redeem",
+      args: [setToken_chainB, _quantityBB, address as `0x${string}`],
+    });
+    console.log(data2);
   };
 
   return (
@@ -279,16 +278,13 @@ const ProdStrategyContent = ({
         </Text>
         <StrategyHoldings strategy={strategy} />
         <Box mt="4">
-          <Button>Invest in Strategy</Button>
-        </Box>
-        <Box mt="4">
           <Button onClick={onApproveAllowance}>Approve Allowance</Button>
         </Box>
         <Box mt="4">
-          <Button onClick={onIssue}>Issue Token</Button>
+          <Button onClick={onIssue}>Invest in Strategy</Button>
         </Box>
         <Box mt="4">
-          <Button onClick={onRedeem}>Redeem Token</Button>
+          <Button onClick={onRedeem}>Withdraw</Button>
         </Box>
       </Flex>
     </Section>

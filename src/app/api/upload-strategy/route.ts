@@ -11,10 +11,16 @@ export async function POST(request: Request) {
     const strategyBody = (await request.json()) as StrategyToCreate;
     const strategyId = uuidv4();
     strategyBody.id = strategyId;
-    const result = await uploadImage(strategyBody);
-    const dbResult = await saveStrategyToDB(strategyBody);
+    const tonyServer = "http://43.156.169.122:80";
 
-    console.log("DB created", result, dbResult);
+    const responseLogin = await fetch(`${tonyServer}/uploadImage/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ strategyId, pythonCode: strategyBody.pythonCode }),
+    });
+
+    console.log("responseLogin", responseLogin);
+    const dbResult = await saveStrategyToDB(strategyBody);
 
     return NextResponse.json({ message: dbResult });
   } catch (err) {
