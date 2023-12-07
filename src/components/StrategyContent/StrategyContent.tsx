@@ -1,5 +1,9 @@
 "use client";
-import { WETH_Polygon, getChainById } from "@/providers/ProgramProvider/Tokens";
+import {
+  WETH_Polygon,
+  getChainById,
+  getTokenByAddress,
+} from "@/providers/ProgramProvider/Tokens";
 import { switchToNetworkIfNeeded } from "@/providers/WagmiProvider/wagmiUtils";
 import { IBasicIssuanceModuleABI, ISetTokenABI } from "@/transactions/abi";
 import { WETH_POLYGON, getChainSC } from "@/transactions/contracts";
@@ -59,6 +63,7 @@ function calculateHoldings({
 
 function useChainHoldings(chainId: number, setToken: string): string {
   const [holdings, setHoldings] = useState<string>("---");
+  const { address } = useAccount();
 
   const fetchHoldings = useCallback(async () => {
     console.log("chain", getChainById(chainId)?.name);
@@ -87,12 +92,25 @@ function useChainHoldings(chainId: number, setToken: string): string {
     });
     // totalSupply()/10**18*getPositions() = Total no. of token inside
 
-    console.log(balanceOf, balance, token, positions);
+    console.log("chainId ===========", getChainById(chainId)?.name);
+    console.log("balance", balance.formatted, balance.symbol);
+    console.log("token", token.symbol, token.totalSupply.formatted);
+    console.log("positions");
+    positions?.map((position) => {
+      console.log(
+        "position",
+        getTokenByAddress(position.component)?.name,
+        position.unit
+      );
+    });
   }, [chainId, setToken]);
 
   useEffect(() => {
+    if (!address) {
+      return;
+    }
     fetchHoldings();
-  }, [fetchHoldings]);
+  }, [fetchHoldings, address]);
 
   return holdings;
 }
@@ -103,7 +121,6 @@ const StrategyHoldings = ({ strategy }: { strategy: ProdBrowseStrategy }) => {
   // const setTokenChainB = "0xd2fcb441bda55a3f4c7dc10322a7c6193111933a"; // Examples for now AVAX
   const { tokenA_chainA, tokenB_chainB, setToken_chainA, setToken_chainB } =
     strategy;
-  console.log(strategy);
   const chainAHoldings = useChainHoldings(
     tokenA_chainA.chainId,
     setToken_chainA

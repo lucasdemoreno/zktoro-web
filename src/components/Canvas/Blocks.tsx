@@ -137,7 +137,7 @@ const StatementBlock = ({
   canUpdate: boolean;
 }) => {
   if (!canUpdate) {
-    return <Text>{statement.label}</Text>;
+    return <Text style={{ paddingInline: "20px" }}>{statement.label}</Text>;
   }
   if (statement.type === "SEND") {
     return <SendBlock statement={statement} />;

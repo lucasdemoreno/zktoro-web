@@ -63,6 +63,10 @@ export function getTokenByName(name: string): ChainToken | undefined {
   return TOKEN_LIST.find((token) => token.name === name);
 }
 
+export function getTokenByAddress(address: string): ChainToken | undefined {
+  return TOKEN_LIST.find((token) => token.address === address);
+}
+
 export function getChainByName(name: string): Chain | undefined {
   return CHAIN_LIST.find((chain) => chain.name === name);
 }
