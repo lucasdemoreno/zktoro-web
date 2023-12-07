@@ -41,7 +41,7 @@ polyBlock = web3Polygon.eth.block_number
 AvalancheBlock = web3Avalanche.eth.block_number
 
 def swap(sourceChain, destChain, setTokenSourceChain, sendTokenSourceChain, sendQuantitySourceChain, receiveTokenSourceChain, minReceiveQuantitySourceChain, poolFeeSourceChain):
-    aaClientSwapEndpoint = 'http://43.156.169.122/swap'
+    aaClientSwapEndpoint = 'http://43.156.147.65:8000/swap'
     swapBody = {
         sourceChain: sourceChain,
         destChain: destChain,
@@ -58,7 +58,7 @@ def swap(sourceChain, destChain, setTokenSourceChain, sendTokenSourceChain, send
     return swapResponse.text
 
 def send(sourceChain, destChain, setTokenDestChain, sendTokenDestChain, receiveTokenDestChain, sendQuantityDestChain, minReceiveTokenQuantityDestChain, poolFeeDestChain, lockReleaseTokenDestChain, lockReleaseQuantity, destActionType, setTokenSourceChain, lockReleaseTokenSourceChain, useLink):
-    aaClientSendEndpoint = 'http://43.156.169.122/lockAndSend'
+    aaClientSendEndpoint = 'http://43.156.147.65:8000/lockAndSend'
     sendBody = {
         sourceChain: sourceChain,
         destChain: destChain,
