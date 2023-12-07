@@ -1,4 +1,4 @@
-import { Button, Dialog, Flex, Text } from "@radix-ui/themes";
+import { Box, Button, Dialog, Flex, Text } from "@radix-ui/themes";
 import styles from "../Canvas/Canvas.module.css";
 import { useProgram } from "@/providers/ProgramProvider/ProgramProvider";
 import { MouseEventHandler, useCallback, useEffect, useMemo } from "react";
@@ -35,6 +35,7 @@ import { tryRegisterVaultPair } from "@/clientUtils/registerVaultPair";
 import { tryCreateDockerImage } from "@/clientUtils/createDockerImage";
 import { useWaitForTransaction } from "wagmi";
 import { useRouter } from "next/navigation";
+import { LoadingSpinner } from "../LoadingSpinner/LoadingSpinner";
 
 export const SaveSection = () => {
   return (
@@ -157,6 +158,11 @@ const disabledStatuses = new Set([
   StepStatusEnum.PENDING,
   StepStatusEnum.SUCCESS,
 ]);
+
+function isLoadingDeploy(publishStatus: PublishStatus): boolean {
+  console.log(publishStatus.createDockerImage);
+  return publishStatus.createDockerImage.status === StepStatusEnum.PENDING;
+}
 
 function getDisabledStatusForStep(
   step: keyof PublishStatus,
@@ -314,15 +320,19 @@ const CreateStrategyModal = () => {
       </Dialog.Description>
       <Dialog.Close>
         <Flex justify="between" mt="4">
-          <Button
-            disabled={getDisabledStatusForStep(
-              "createDockerImage",
-              publishStatus
-            )}
-            onClick={onDeploy}
-          >
-            Deploy
-          </Button>
+          <Flex gap="2">
+            <Button
+              disabled={getDisabledStatusForStep(
+                "createDockerImage",
+                publishStatus
+              )}
+              onClick={onDeploy}
+            >
+              Deploy
+            </Button>
+            {isLoadingDeploy(publishStatus) && <LoadingSpinner />}
+          </Flex>
+
           <Button color="crimson">Cancel</Button>
         </Flex>
       </Dialog.Close>

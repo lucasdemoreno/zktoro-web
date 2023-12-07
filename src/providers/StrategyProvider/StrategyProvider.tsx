@@ -120,7 +120,6 @@ export const StrategyProvider = ({
     setBacktestStatus({ loading: true });
     try {
       // Make API call here somewhere
-      await new Promise((resolve) => setTimeout(resolve, 2000));
       setBacktestStatus({ loading: false, error: null, data: "Some new data" });
     } catch (error) {
       setBacktestStatus({ loading: false, error });

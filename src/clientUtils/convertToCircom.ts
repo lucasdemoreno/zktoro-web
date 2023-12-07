@@ -16,7 +16,6 @@ export async function convertToCircom(
 ): Promise<string> {
   // TODO: Replace this with the actual convertion to Circom
   const result = JSON.stringify(statements);
-  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   return result;
 }

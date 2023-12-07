@@ -26,8 +26,6 @@ export async function pushImage(
     contextPath,
   ]);
 
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-
   console.log(`Image built successfully: ${imageName}`);
 
   try {

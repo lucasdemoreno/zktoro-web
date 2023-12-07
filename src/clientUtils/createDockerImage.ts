@@ -1,4 +1,5 @@
 import { ChainToken, Statement } from "@/providers/ProgramProvider/Statements";
+import { getChainById } from "@/providers/ProgramProvider/Tokens";
 import {
   PublishAction,
   StepStatusEnum,
@@ -24,7 +25,10 @@ export async function createDockerImage(
   const date = new Date();
   const dateString = date.toLocaleDateString();
   const timeString = date.toLocaleTimeString();
-  const tokenStrings = `${tokenA_chainA.symbol}, ${tokenB_chainA.symbol}, ${tokenA_chainB.symbol}, ${tokenB_chainB.symbol}`;
+  const tokenStrings = `${tokenA_chainA.symbol}, ${tokenB_chainA.symbol}`;
+  const chainStrings = `${getChainById(tokenA_chainA.chainId)?.name}, ${
+    getChainById(tokenB_chainB.chainId)?.name
+  }`;
   const strategyToCreate: StrategyToCreate = {
     id: "",
     isMocked: false,
@@ -36,7 +40,7 @@ export async function createDockerImage(
     tokenA_chainB,
     tokenB_chainB,
     name: `New Strategy ${dateString} ${timeString}`,
-    description: `Strategy with ${tokenStrings}`,
+    description: `with ${tokenStrings} between ${chainStrings}`,
   };
 
   // This is the request to the Next.js API route

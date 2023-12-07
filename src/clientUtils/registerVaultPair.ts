@@ -18,7 +18,6 @@ export async function registerVaultPair(
 ): Promise<string> {
   // TODO: Replace this with the actual vault pair creation
   const result = `registerVaultPair result: ${setTokenChainA} ${setTokenChainB}`;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   return result;
 }
