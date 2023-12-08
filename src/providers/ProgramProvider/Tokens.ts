@@ -1,3 +1,9 @@
+import {
+  USDC_MUMBAI,
+  USDC_SEPOLIA,
+  WETH_MUMBAI,
+  WETH_SEPOLIA,
+} from "@/transactions/contracts";
 import { ChainToken } from "./Statements";
 
 export type Chain = {
@@ -5,58 +11,58 @@ export type Chain = {
   chainId: number;
 };
 
-export const Polygon: Chain = {
-  name: "Polygon",
-  chainId: 137,
+export const Mumbai: Chain = {
+  name: "Mumbai",
+  chainId: 80001,
 };
 
-export const Avalanche: Chain = {
-  name: "Avalanche",
-  chainId: 43114,
+export const Sepolia: Chain = {
+  name: "Sepolia",
+  chainId: 11155111,
 };
 
-export const USDC_Polygon: ChainToken = {
-  name: "USDC (Polygon)",
-  chainId: 137,
-  decimals: 6,
-  address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+export const USDC_Mumbai: ChainToken = {
+  name: "USDC (Mumbai)",
+  chainId: 80001,
+  decimals: 18,
+  address: USDC_MUMBAI,
   symbol: "USDC",
 };
 
-export const USDC_Avalanche: ChainToken = {
-  name: "USDC (Avalanche)",
-  chainId: 43114,
-  decimals: 6,
-  address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+export const USDC_Sepolia: ChainToken = {
+  name: "USDC (Sepolia)",
+  chainId: 11155111,
+  decimals: 18,
+  address: USDC_SEPOLIA,
   symbol: "USDC",
 };
 
-// Same for Wrapper Ether on Polygon Mainnet
-export const WETH_Polygon: ChainToken = {
-  name: "WETH (Polygon)",
-  chainId: 137,
+// Same for Wrapper Ether on Mumbai Mainnet
+export const WETH_Mumbai: ChainToken = {
+  name: "WETH (Mumbai)",
+  chainId: 80001,
   decimals: 18,
-  address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+  address: WETH_MUMBAI,
   symbol: "WETH",
 };
 
-// Same for Wrapper Ether on Avalanche Mainnet
-export const WETH_Avalanche: ChainToken = {
-  name: "WETH (Avalanche)",
-  chainId: 43114,
+// Same for Wrapper Ether on Sepolia Mainnet
+export const WETH_Sepolia: ChainToken = {
+  name: "WETH (Sepolia)",
+  chainId: 11155111,
   decimals: 18,
-  address: "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB",
+  address: WETH_SEPOLIA,
   symbol: "WETH",
 };
 
-export const CHAIN_LIST: Chain[] = [Polygon, Avalanche];
+export const CHAIN_LIST: Chain[] = [Mumbai, Sepolia];
 
 // This is a hardcoded list of tokens that we support
 export const TOKEN_LIST: ChainToken[] = [
-  USDC_Polygon,
-  USDC_Avalanche,
-  WETH_Polygon,
-  WETH_Avalanche,
+  USDC_Mumbai,
+  USDC_Sepolia,
+  WETH_Mumbai,
+  WETH_Sepolia,
 ];
 
 export function getTokenByName(name: string): ChainToken | undefined {

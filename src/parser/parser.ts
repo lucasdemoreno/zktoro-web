@@ -1,11 +1,11 @@
 import {
-  Avalanche,
+  Sepolia,
   Chain,
-  Polygon,
-  USDC_Avalanche,
-  USDC_Polygon,
-  WETH_Avalanche,
-  WETH_Polygon,
+  Mumbai,
+  USDC_Sepolia,
+  USDC_Mumbai,
+  WETH_Sepolia,
+  WETH_Mumbai,
 } from "@/providers/ProgramProvider/Tokens";
 import {
   ChainToken,
@@ -45,11 +45,17 @@ function parseMathExpression(expression: MathExpression): PythonCode {
 }
 
 function converToVariable(token: ChainToken): string {
-  if (token.name.includes("Avalanche")) {
-    return "AvalanchePrice";
+  if (token.name.includes("Sepolia") && token.name.includes("WETH")) {
+    return "SepoliaPrice";
   }
-  if (token.name.includes("Polygon")) {
-    return "polygonPrice";
+  if (token.name.includes("Mumbai") && token.name.includes("WETH")) {
+    return "MumbaiPrice";
+  }
+  if (token.name.includes("Sepolia")) {
+    return "USDCSepolia";
+  }
+  if (token.name.includes("Mumbai")) {
+    return "USDCMumbai";
   }
   return "UNKNOWN";
 }
@@ -209,23 +215,33 @@ function parseSwapStatement(statement: SwapStatement): PythonCode {
 }
 
 function getOtherChain(chain: Chain): Chain {
-  if (chain.name === "Avalanche") {
-    return Polygon;
+  if (chain.name === "Sepolia") {
+    return Mumbai;
   }
-  if (chain.name === "Polygon") {
-    return Avalanche;
+  if (chain.name === "Mumbai") {
+    return Sepolia;
   }
   throw new Error(`Chain ${chain.name} is not supported`);
 }
 
 function getSetToken(chain: string): string {
-  if (chain === "Avalanche") {
-    return "SetTokenAvalanche";
+  if (chain === "Sepolia") {
+    return "SetTokenSepolia";
   }
-  if (chain === "Polygon") {
+  if (chain === "Mumbai") {
     return "SetTokenPoly";
   }
   throw new Error(`Chain ${chain} is not supported`);
+}
+
+function safeChainName(chain: Chain): string {
+  if (chain.name === "Sepolia") {
+    return "Sepolia";
+  }
+  if (chain.name === "Mumbai") {
+    return "Polygon";
+  }
+  throw new Error(`Chain ${chain.name} is not supported`);
 }
 
 function buildSwapCall(
@@ -234,17 +250,17 @@ function buildSwapCall(
   chain: Chain,
   quantity: string
 ): string[] {
-  const sourceChain = `"${chain.name}"`;
-  const destChain = `"${getOtherChain(chain).name}"`;
+  const sourceChain = `"${safeChainName(chain)}"`;
+  const destChain = `"${safeChainName(getOtherChain(chain))}"`;
   const setTokenSourceChain = getSetToken(chain.name); // `SET_TOKEN_in_${chain.name}`;
   const sendTokenSourceChain = `"${from.address}"`;
-  const sendQuantitySourceChain = 50 * 10 ** 6; // Fixed for now.
+  const sendQuantitySourceChain = 55 * 10 ** 12; // Fixed for now.
   const receiveTokenSourceChain = `"${to.address}"`;
   const minReceiveQuantitySourceChain = 0; // For now.
-  const poolFeeSourceChain = 500; // Fixed for now.
+  const poolFeeSourceChain = 3000; // Fixed for now.
 
   const variableSwapResult = `result_swap_${from.symbol}_${to.symbol}`;
-  const swapCall = `${variableSwapResult} = swap(${sourceChain}, ${destChain}, ${setTokenSourceChain}, ${sendTokenSourceChain}, ${sendQuantitySourceChain}, ${receiveTokenSourceChain}, ${minReceiveQuantitySourceChain}, ${poolFeeSourceChain})`;
+  const swapCall = `${variableSwapResult} = swap(${sourceChain}, ${destChain}, ${setTokenSourceChain}, ${sendTokenSourceChain}, ${sendQuantitySourceChain}, ${receiveTokenSourceChain}, ${minReceiveQuantitySourceChain}, ${poolFeeSourceChain}, circomProof, circomProofSignal)`;
   const loggingSwapCall = `print(${variableSwapResult})`;
   const swapLines = [swapCall, loggingSwapCall];
 
@@ -252,17 +268,17 @@ function buildSwapCall(
 }
 
 function getTokenInChain(symbol: string, chain: string): string {
-  if (chain === "Avalanche" && symbol === "WETH") {
-    return WETH_Avalanche.address;
+  if (chain === "Sepolia" && symbol === "WETH") {
+    return WETH_Sepolia.address;
   }
-  if (chain === "Avalanche" && symbol === "USDC") {
-    return USDC_Avalanche.address;
+  if (chain === "Sepolia" && symbol === "USDC") {
+    return USDC_Sepolia.address;
   }
-  if (chain === "Polygon" && symbol === "WETH") {
-    return WETH_Polygon.address;
+  if (chain === "Mumbai" && symbol === "WETH") {
+    return WETH_Mumbai.address;
   }
-  if (chain === "Polygon" && symbol === "USDC") {
-    return USDC_Polygon.address;
+  if (chain === "Mumbai" && symbol === "USDC") {
+    return USDC_Mumbai.address;
   }
 
   throw new Error(`Chain ${chain} is not supported`);
@@ -274,19 +290,16 @@ function buildSendCall(
   token: ChainToken,
   quantity: string
 ): string[] {
-  const sourceChain = `"${from.name}"`;
-  const destChain = `"${to.name}"`;
+  const sourceChain = `"${safeChainName(from)}"`;
+  const destChain = `"${safeChainName(to)}"`;
 
   const setTokenDestChain = getSetToken(to.name);
-  const sendTokenDestChain = `"${token.address}"`;
+  const sendTokenDestChain = `"${getTokenInChain(token.symbol, to.name)}"`;
   const receiveTokenDestChain = `"${getTokenInChain("USDC", to.name)}"`; // hardcoded for now
   const sendQuantityDestChain = 5 * 10 ** 15; // Of WETH for now.
   const minReceiveTokenQuantityDestChain = 0; // For now.
-  const poolFeeDestChain = 500; // For now.
-  const lockReleaseTokenDestChain = `"${getTokenInChain(
-    token.symbol,
-    to.name
-  )}"`;
+  const poolFeeDestChain = 3000; // For now.
+  const lockReleaseTokenDestChain = sendTokenDestChain;
   const lockReleaseQuantity = 5 * 10 ** 15; // Of WETH for now.;
 
   const destActionType = 0; // This is a releaseAndSwap;
@@ -300,7 +313,8 @@ function buildSendCall(
 
   const variableSendResult = `result_send_${from.name}_${to.name}`;
 
-  const sendCall = `${variableSendResult} = send(${sourceChain}, ${destChain}, ${setTokenDestChain}, ${sendTokenDestChain}, ${receiveTokenDestChain}, ${sendQuantityDestChain}, ${minReceiveTokenQuantityDestChain}, ${poolFeeDestChain}, ${lockReleaseTokenDestChain}, ${lockReleaseQuantity}, ${destActionType}, ${setTokenSourceChain}, ${lockReleaseTokenSourceChain}, ${useLink})`;
+  const sendCall = `${variableSendResult} = send(${sourceChain}, ${destChain}, ${setTokenDestChain}, ${sendTokenDestChain}, ${receiveTokenDestChain}, ${sendQuantityDestChain}, ${minReceiveTokenQuantityDestChain}, ${poolFeeDestChain}, ${lockReleaseTokenDestChain}, ${lockReleaseQuantity}, ${destActionType}, ${setTokenSourceChain}, ${lockReleaseTokenSourceChain}, ${useLink}, circomProof, circomProofSignal)`;
+
   const loggingSendCall = `print(${variableSendResult})`;
   const sendLines = [sendCall, loggingSendCall];
 
@@ -368,18 +382,51 @@ function parseAllStatements(statements: Statement[]): PythonCode {
   return pythonCode;
 }
 
+function replacedConditionWithCircom(pythonCode: PythonCode) {
+  const { variables, lines } = pythonCode;
+  if (lines.length === 0) {
+    return 0;
+  }
+  let alreadyChangedFirstIf = false;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes("if ")) {
+      if (!alreadyChangedFirstIf) {
+        lines[i] = "if circomSignal == 1:";
+        alreadyChangedFirstIf = true;
+      } else {
+        lines[i] = `${TAB}if circomSignal == 2:`;
+      }
+    }
+  }
+
+  const line1 = `Deviation = int((SepoliaPrice / MumbaiPrice - 1) * 10**6)`;
+  const line2 = `Threshold = int(0.00001 * 10**6)`; // input from user
+  const line3 = `circom = runcircom(Deviation, Threshold) `;
+  const line4 = `circomSignal = circom['signal']`;
+  const line5 = `circomProof = circom['zkproof']`;
+  const line6 = `circomProofSignal = circom['zkproofSignal']`;
+
+  variables.push(line1);
+  variables.push(line2);
+  variables.push(line3);
+  variables.push(line4);
+  variables.push(line5);
+  variables.push(line6);
+}
+
 export function parse(statements: Statement[]): string {
   const pythonCode = parseAllStatements(statements);
-  // Do the join here.
-  // TODO: Here do the replacement for the Circom code.
-  const pythonLines = pythonCode.lines.join(`\n${TAB}${TAB}`);
-  const pythonVariables = pythonCode.variables.join(`\n${TAB}${TAB}`);
 
-  console.log(pythonVariables);
-  console.log(pythonLines);
+  replacedConditionWithCircom(pythonCode);
+
+  const pythonLines = pythonCode.lines.join(`\n${TAB}`);
+  const pythonVariables = pythonCode.variables.join(`\n${TAB}`);
+
+  // console.log(pythonVariables);
+  // console.log(pythonLines);
 
   // This Tabs are just because the Python code is inside a if/else statements.
   // There is this warning in VScode but I thinks it's fine.
   // https://stackoverflow.com/questions/5685406/inconsistent-use-of-tabs-and-spaces-in-indentation
-  return `${TAB}${pythonVariables}\n${TAB}${pythonLines}`;
+  return `${pythonVariables}\n${TAB}${pythonLines}`;
 }

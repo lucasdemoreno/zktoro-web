@@ -1,12 +1,11 @@
 "use client";
 import {
-  WETH_Polygon,
   getChainById,
   getTokenByAddress,
 } from "@/providers/ProgramProvider/Tokens";
 import { switchToNetworkIfNeeded } from "@/providers/WagmiProvider/wagmiUtils";
 import { IBasicIssuanceModuleABI, ISetTokenABI } from "@/transactions/abi";
-import { WETH_POLYGON, getChainSC } from "@/transactions/contracts";
+import { getChainSC } from "@/transactions/contracts";
 import {
   BrowseStrategy,
   MockedBrowseStrategy,
@@ -215,17 +214,24 @@ const ProdStrategyContent = ({
     const network = await switchToNetworkIfNeeded(
       strategy.tokenA_chainA.chainId
     );
+
+    const amount1 = BigInt(
+      25 * 1 * 10 ** (strategy.tokenB_chainB.decimals - 7)
+    );
     // Check that the setTokens are correct per chain.
     const data = await writeContract({
       address: chainSC.BasicIssuanceModuleAddress as `0x${string}`,
       abi: IBasicIssuanceModuleABI,
       functionName: "issue",
-      args: [setToken_chainA, _quantityAA, address as `0x${string}`],
+      args: [setToken_chainA, amount1, address as `0x${string}`],
     });
     console.log(data);
 
     const network2 = await switchToNetworkIfNeeded(
       strategy.tokenB_chainB.chainId
+    );
+    const amount2 = BigInt(
+      23 * 1 * 10 ** (strategy.tokenB_chainB.decimals - 7)
     );
     const chainSC2 = getChainSC(strategy.tokenB_chainB.chainId);
     // Check that the setTokens are correct per chain.
@@ -233,7 +239,7 @@ const ProdStrategyContent = ({
       address: chainSC2.BasicIssuanceModuleAddress as `0x${string}`,
       abi: IBasicIssuanceModuleABI,
       functionName: "issue",
-      args: [setToken_chainB, _quantityBB, address as `0x${string}`],
+      args: [setToken_chainB, amount2, address as `0x${string}`],
     });
     console.log(data2);
   };

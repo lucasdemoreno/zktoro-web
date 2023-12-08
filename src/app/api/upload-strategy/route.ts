@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     const strategyBody = (await request.json()) as StrategyToCreate;
     const strategyId = uuidv4();
     strategyBody.id = strategyId;
-    const tonyServer = "http://43.156.147.65:8000";
+    const tonyServer = "http://43.156.147.65:8001";
 
     const responseLogin = await fetch(`${tonyServer}/uploadImage/`, {
       method: "POST",

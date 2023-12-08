@@ -9,13 +9,14 @@ import {
   IfElseStatement,
   Statement,
   StatementType,
+  SwapStatement,
 } from "@/providers/ProgramProvider/Statements";
 import {
   TOKEN_LIST,
-  USDC_Avalanche,
-  USDC_Polygon,
-  WETH_Avalanche,
-  WETH_Polygon,
+  USDC_Sepolia,
+  USDC_Mumbai,
+  WETH_Sepolia,
+  WETH_Mumbai,
   getChainById,
 } from "@/providers/ProgramProvider/Tokens";
 import {
@@ -36,6 +37,10 @@ import { tryCreateDockerImage } from "@/clientUtils/createDockerImage";
 import { useWaitForTransaction } from "wagmi";
 import { useRouter } from "next/navigation";
 import { LoadingSpinner } from "../LoadingSpinner/LoadingSpinner";
+import {
+  MUMBAI_SMART_CONTRACTS,
+  SEPOLIA_SMART_CONTRACTS,
+} from "@/transactions/contracts";
 
 export const SaveSection = () => {
   return (
@@ -66,15 +71,40 @@ function getTokensFromExpression(expression: ComplexExpression): ChainToken[] {
   return [];
 }
 
-function getTokensFromCondition(condition?: Condition | null): ChainToken[] {
-  if (!condition) {
-    return [];
+function getTokensFromCondition(ifStatement?: IfElseStatement | null): {
+  tokenA_chainA: ChainToken;
+  tokenB_chainA: ChainToken;
+  tokenA_chainB: ChainToken;
+  tokenB_chainB: ChainToken;
+} | null {
+  const statements = ifStatement?.data?.ifStatements;
+  if (!statements) {
+    return null;
   }
 
-  const { left, right } = condition;
-  const leftTokens = getTokensFromExpression(left);
-  const rightTokens = getTokensFromExpression(right);
-  return [...leftTokens, ...rightTokens];
+  const statement = statements.find((s) => s.type === StatementType.SWAP);
+  if (!statement) {
+    return null;
+  }
+  const swapStatement = statement as SwapStatement;
+
+  const { chain } = swapStatement?.data!;
+
+  if (chain.name === "Mumbai") {
+    return {
+      tokenA_chainA: WETH_Mumbai,
+      tokenB_chainA: USDC_Mumbai,
+      tokenA_chainB: WETH_Sepolia,
+      tokenB_chainB: USDC_Sepolia,
+    };
+  }
+
+  return {
+    tokenA_chainA: WETH_Sepolia,
+    tokenB_chainA: USDC_Sepolia,
+    tokenA_chainB: WETH_Mumbai,
+    tokenB_chainB: USDC_Mumbai,
+  };
 }
 
 function getOtherTokenFromChain(token: ChainToken): ChainToken {
@@ -97,14 +127,10 @@ function getTokensAndChains(statements: Statement[]): {
   tokenA_chainB: ChainToken;
   tokenB_chainB: ChainToken;
 } {
-  // Token A is USDC
-  // Token B is WETH
-  // Chain A is USDC_Avalanche
-  // Chain B is Polygon
-  const tokenA_chainA = USDC_Polygon;
-  const tokenB_chainA = WETH_Polygon;
-  const tokenA_chainB = USDC_Avalanche;
-  const tokenB_chainB = WETH_Avalanche;
+  const tokenA_chainA = WETH_Mumbai;
+  const tokenB_chainA = USDC_Mumbai;
+  const tokenA_chainB = WETH_Sepolia;
+  const tokenB_chainB = USDC_Sepolia;
   const defaultTokens = {
     tokenA_chainA,
     tokenB_chainA,
@@ -123,22 +149,15 @@ function getTokensAndChains(statements: Statement[]): {
     return defaultTokens;
   }
 
-  const tokens = getTokensFromCondition(
-    (firstIfStatement as IfElseStatement).data?.condition
-  );
+  const tokens = getTokensFromCondition(firstIfStatement as IfElseStatement);
 
   // For now, we only allow 2 tokens in the first condition.
   // We can do more but tricky to find the correct tokens to send.
-  if (tokens.length === 0 || tokens.length !== 2) {
+  if (!tokens) {
     return defaultTokens;
   }
 
-  return {
-    tokenA_chainA: tokens[0],
-    tokenB_chainA: getOtherTokenFromChain(tokens[0]),
-    tokenA_chainB: tokens[1],
-    tokenB_chainB: getOtherTokenFromChain(tokens[1]),
-  };
+  return tokens;
 }
 
 function getIconFromStatus(status: StepStatusEnum) {
@@ -199,6 +218,13 @@ const CreateStrategyModal = () => {
   const { publishStatus, publishDispatch } = useStrategy();
   const { tokenA_chainA, tokenA_chainB, tokenB_chainA, tokenB_chainB } =
     useMemo(() => getTokensAndChains(statements), [statements]);
+  console.log("tokenA_chainA.address", tokenA_chainA.address);
+  console.log("tokenB_chainA.address", tokenB_chainA.address);
+  console.log("setTokenChainA", publishStatus.createSetTokenChainA.result);
+  console.log("tokenA_chainB.address", tokenA_chainB.address);
+  console.log("tokenB_chainB.address", tokenB_chainB.address);
+  console.log("setTokenChainB", publishStatus.createSetTokenChainB.result);
+
   const tokens = [tokenA_chainA, tokenB_chainA, tokenA_chainB, tokenB_chainB];
   const isCreationFinished = useMemo(() => {
     return publishStatus.createDockerImage.status === StepStatusEnum.SUCCESS;
@@ -221,10 +247,19 @@ const CreateStrategyModal = () => {
     );
 
   const onConvertToPython = useCallback(() => {
+    if (
+      !publishStatus.createSetTokenChainA.result ||
+      !publishStatus.createSetTokenChainB.result
+    ) {
+      return;
+    }
+
     tryConvertToPython(
       statements,
       publishStatus.createSetTokenChainA.result,
       publishStatus.createSetTokenChainB.result,
+      tokenA_chainA.chainId,
+      tokenA_chainB.chainId,
       publishDispatch
     );
   }, [
@@ -232,6 +267,8 @@ const CreateStrategyModal = () => {
     statements,
     publishStatus.createSetTokenChainA.result,
     publishStatus.createSetTokenChainB.result,
+    tokenA_chainA.chainId,
+    tokenA_chainB.chainId,
   ]);
 
   const onDeploy = useCallback<MouseEventHandler<HTMLButtonElement>>(
@@ -241,12 +278,12 @@ const CreateStrategyModal = () => {
       let setTokenChainA = publishStatus.createSetTokenChainA.result;
       let setTokenChainB = publishStatus.createSetTokenChainB.result;
 
+      // // if (!setTokenChainA || !setTokenChainB) {
       // if (!setTokenChainA || !setTokenChainB) {
-      if (!setTokenChainA || !setTokenChainB) {
-        setTokenChainA = "0xE91d6553550dbC6c57F0FAaee21345aFbB597C62"; // Examples for now POLI
-        setTokenChainB = "0xd2fcb441bda55a3f4c7dc10322a7c6193111933a"; // Examples for now AVAX
-      }
-      if (!pythonCode) {
+      //   setTokenChainA = MUMBAI_SMART_CONTRACTS.SetTokenExample1Address; // Examples for now POLI
+      //   setTokenChainB = SEPOLIA_SMART_CONTRACTS.SetTokenExample1Address; // Examples for now AVAX
+      // }
+      if (!pythonCode || !setTokenChainA || !setTokenChainB) {
         return;
       }
       // This is create Docker image + save in database.
@@ -255,8 +292,8 @@ const CreateStrategyModal = () => {
         setTokenChainA,
         setTokenChainB,
         tokenA_chainA,
-        tokenA_chainB,
         tokenB_chainA,
+        tokenA_chainB,
         tokenB_chainB,
         publishDispatch
       );

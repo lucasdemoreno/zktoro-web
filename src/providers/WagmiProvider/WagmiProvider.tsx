@@ -4,12 +4,12 @@ import { WagmiConfig, configureChains, createConfig, mainnet } from "wagmi";
 import { PropsWithChildren } from "react";
 import { publicProvider } from "wagmi/providers/public";
 import { InjectedConnector } from "wagmi/connectors/injected";
-import { avalanche, polygon } from "wagmi/chains";
+import { sepolia, polygonMumbai } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { infuraProvider } from "wagmi/providers/infura";
 
 const { publicClient, chains } = configureChains(
-  [polygon, avalanche],
+  [polygonMumbai, sepolia],
   [
     infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY || "" }),
     alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || "" }),

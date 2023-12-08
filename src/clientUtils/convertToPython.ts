@@ -6,6 +6,10 @@ import {
 } from "@/providers/StrategyProvider/StrategyProvider";
 import { Dispatch } from "react";
 import { createPythonFileContent } from "./createPythonFileContent";
+import {
+  MUMBAI_SMART_CONTRACTS,
+  SEPOLIA_SMART_CONTRACTS,
+} from "@/transactions/contracts";
 
 /**
  * TODO: This function should convert the statements to Python
@@ -16,22 +20,29 @@ import { createPythonFileContent } from "./createPythonFileContent";
 export function convertToPython(
   statements: Statement[],
   setToken_chainA: string,
-  setToken_chainB: string
+
+  setToken_chainB: string,
+  chainAId: number,
+  chainBId: number
 ): string {
-  // TODO: Replace this with the actual convertion to Python
   const result = parse(statements);
   const fileContent = createPythonFileContent(
     result,
     setToken_chainA,
-    setToken_chainB
+    setToken_chainB,
+    chainAId,
+    chainBId
   );
+  console.log(fileContent);
   return fileContent;
 }
 
 export async function tryConvertToPython(
   statements: Statement[],
-  setToken_chainA: string = "0xEC553087B96e5cE90c19187B1F85A7EF75FA30bB", // Examples for now POLI
-  setToken_chainB: string = "0xA443A48dfA97FC86ddEc44A5edD485F9F4211548", // Examples for now AVAX
+  setToken_chainA: string, // Examples for now POLI
+  setToken_chainB: string, // Examples for now AVAX
+  chainAId: number,
+  chainBId: number,
   publishDispatch: Dispatch<PublishAction>
 ): Promise<void> {
   publishDispatch({
@@ -45,7 +56,9 @@ export async function tryConvertToPython(
     const pythonConvertion = convertToPython(
       statements,
       setToken_chainA,
-      setToken_chainB
+      setToken_chainB,
+      chainAId,
+      chainBId
     );
     // console.log(pythonConvertion);
     publishDispatch({

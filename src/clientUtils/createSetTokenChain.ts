@@ -41,8 +41,8 @@ export function useCreateSetTokenChain(
         args: [
           [tokenA.address as `0x${string}`, tokenB.address as `0x${string}`],
           [
-            BigInt(1 * 10 ** tokenA.decimals),
-            BigInt(1 * 10 ** tokenB.decimals),
+            BigInt(5000 * 10 ** tokenA.decimals),
+            BigInt(5000 * 10 ** tokenB.decimals),
           ],
           `Leonardo 02 - ${tokenA.symbol}:${tokenB.symbol}`,
           "LEO02",

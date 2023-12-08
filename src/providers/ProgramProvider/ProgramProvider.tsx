@@ -17,11 +17,11 @@ import {
   SwapStatement,
 } from "./Statements";
 import {
-  Avalanche,
-  Polygon,
-  USDC_Avalanche,
-  WETH_Avalanche,
-  WETH_Polygon,
+  Sepolia,
+  Mumbai,
+  USDC_Sepolia,
+  WETH_Sepolia,
+  WETH_Mumbai,
 } from "./Tokens";
 
 type ProgramContextValue = {
@@ -37,9 +37,9 @@ function createStatementsFromDropped(statement: Statement): Statement[] {
       ...statement,
       data: {
         ...statement.data,
-        from: USDC_Avalanche,
-        to: WETH_Avalanche,
-        chain: Avalanche,
+        from: USDC_Sepolia,
+        to: WETH_Sepolia,
+        chain: Sepolia,
         amount: "100%",
       },
     };
@@ -51,9 +51,9 @@ function createStatementsFromDropped(statement: Statement): Statement[] {
       ...statement,
       data: {
         ...statement.data,
-        token: WETH_Avalanche,
-        to: Avalanche,
-        from: Polygon,
+        token: WETH_Sepolia,
+        from: Sepolia,
+        to: Mumbai,
         amount: "100%",
       },
     };
@@ -85,10 +85,10 @@ function createStatementsFromDropped(statement: Statement): Statement[] {
       condition: {
         left: {
           operator: MathOperator.DIVIDE,
-          left: WETH_Avalanche,
-          right: WETH_Polygon,
+          left: WETH_Mumbai,
+          right: WETH_Sepolia,
         },
-        right: "1",
+        right: "1.0009",
         operator: ComparisonOperator.GREATER_THAN,
       },
       elseStatement,

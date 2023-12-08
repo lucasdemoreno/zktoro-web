@@ -32,7 +32,7 @@ import {
   CHAIN_LIST,
   Chain,
   TOKEN_LIST,
-  USDC_Polygon,
+  USDC_Mumbai,
   getChainByName,
   getTokenByName,
 } from "@/providers/ProgramProvider/Tokens";
@@ -280,7 +280,7 @@ const SendBlock = ({ statement }: { statement: SendStatement }) => {
         ...statement,
         data: {
           ...statement.data,
-          chain: newChain,
+          [direction]: newChain,
         },
       };
       onStatementUpdate(newStatement);
@@ -476,7 +476,7 @@ const IfExpression = ({
         onExpressionChange("1");
       }
       if (optionType === "token price") {
-        onExpressionChange(USDC_Polygon);
+        onExpressionChange(USDC_Mumbai);
       }
     },
     [onExpressionChange]
