@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 import { saveStrategyToDB } from "@/db/db";
 import { StrategyToCreate } from "@/types/create";
 
+export const maxDuration = 120; // This function can run for a maximum of 12 seconds
+
 export async function POST(request: Request) {
   console.log("building image...");
 
