@@ -313,12 +313,16 @@ const ProdStrategyContent = ({
           {strategy.description}
         </Text>
         <Text as="p" size="3">
-          <Strong>Vault in Chain A: </Strong>{" "}
-          {getChainById(strategy.tokenA_chainA.chainId)?.name}
+          <Strong>
+            Vault in {getChainById(strategy.tokenA_chainA.chainId)?.name}:{" "}
+          </Strong>{" "}
+          {setToken_chainA}
         </Text>
         <Text as="p" size="3">
-          <Strong>Vault in Chain B: </Strong>{" "}
-          {getChainById(strategy.tokenA_chainB.chainId)?.name}
+          <Strong>
+            Vault in {getChainById(strategy.tokenA_chainB.chainId)?.name}:{" "}
+          </Strong>{" "}
+          {setToken_chainB}
         </Text>
         <StrategyHoldings strategy={strategy} />
         <Box mt="4">
