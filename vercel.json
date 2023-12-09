@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/upload-strategy.js": {
+    "api/upload-strategy/route.ts": {
       "maxDuration": 120
     }
   }
