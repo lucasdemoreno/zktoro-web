@@ -60,7 +60,6 @@ export async function tryConvertToPython(
       chainAId,
       chainBId
     );
-    // console.log(pythonConvertion);
     publishDispatch({
       type: "UPDATE",
       payload: {

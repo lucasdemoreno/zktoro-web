@@ -253,9 +253,9 @@ function buildSwapCall(
   const sourceChain = `"${safeChainName(chain)}"`;
   const destChain = `"${safeChainName(getOtherChain(chain))}"`;
   const setTokenSourceChain = getSetToken(chain.name); // `SET_TOKEN_in_${chain.name}`;
-  const sendTokenSourceChain = `"${from.address}"`;
+  const sendTokenSourceChain = getTokenInChain(from.symbol, chain.name);
   const sendQuantitySourceChain = 55 * 10 ** 12; // Fixed for now.
-  const receiveTokenSourceChain = `"${to.address}"`;
+  const receiveTokenSourceChain = getTokenInChain(to.symbol, chain.name);
   const minReceiveQuantitySourceChain = 0; // For now.
   const poolFeeSourceChain = 3000; // Fixed for now.
 
@@ -269,16 +269,16 @@ function buildSwapCall(
 
 function getTokenInChain(symbol: string, chain: string): string {
   if (chain === "Sepolia" && symbol === "WETH") {
-    return WETH_Sepolia.address;
+    return "WETH_Sepolia";
   }
   if (chain === "Sepolia" && symbol === "USDC") {
-    return USDC_Sepolia.address;
+    return "USDC_Sepolia";
   }
   if (chain === "Mumbai" && symbol === "WETH") {
-    return WETH_Mumbai.address;
+    return "WETH_Mumbai";
   }
   if (chain === "Mumbai" && symbol === "USDC") {
-    return USDC_Mumbai.address;
+    return "USDC_Mumbai";
   }
 
   throw new Error(`Chain ${chain} is not supported`);
@@ -294,21 +294,18 @@ function buildSendCall(
   const destChain = `"${safeChainName(to)}"`;
 
   const setTokenDestChain = getSetToken(to.name);
-  const sendTokenDestChain = `"${getTokenInChain(token.symbol, to.name)}"`;
-  const receiveTokenDestChain = `"${getTokenInChain("USDC", to.name)}"`; // hardcoded for now
+  const sendTokenDestChain = getTokenInChain(token.symbol, to.name);
+  const receiveTokenDestChain = getTokenInChain("USDC", to.name); // hardcoded for now
   const sendQuantityDestChain = 5 * 10 ** 15; // Of WETH for now.
   const minReceiveTokenQuantityDestChain = 0; // For now.
   const poolFeeDestChain = 3000; // For now.
   const lockReleaseTokenDestChain = sendTokenDestChain;
   const lockReleaseQuantity = 5 * 10 ** 15; // Of WETH for now.;
 
-  const destActionType = 0; // This is a releaseAndSwap;
+  const destActionType = 3; // This is a releaseAndSwap;
 
   const setTokenSourceChain = getSetToken(from.name);
-  const lockReleaseTokenSourceChain = `"${getTokenInChain(
-    token.symbol,
-    from.name
-  )}"`;
+  const lockReleaseTokenSourceChain = getTokenInChain(token.symbol, from.name);
   const useLink = "True"; // For now.
 
   const variableSendResult = `result_send_${from.name}_${to.name}`;
@@ -367,13 +364,13 @@ function parseAllStatements(statements: Statement[]): PythonCode {
   };
   statements.forEach((statement, index) => {
     // Special case for Swap after a Send.
-    if (
-      statement.type === StatementType.SWAP &&
-      statements[index - 1]?.type === StatementType.SEND
-    ) {
-      // This is because, we do everything in the same call.
-      return;
-    }
+    // if (
+    //   statement.type === StatementType.SWAP &&
+    //   statements[index - 1]?.type === StatementType.SEND
+    // ) {
+    //   // This is because, we do everything in the same call.
+    //   return;
+    // }
     const code = parseSentence(statement);
     pythonCode.variables.push(...code.variables);
     pythonCode.lines.push(...code.lines);
@@ -400,7 +397,7 @@ function replacedConditionWithCircom(pythonCode: PythonCode) {
   }
 
   const line1 = `Deviation = int((SepoliaPrice / MumbaiPrice - 1) * 10**6)`;
-  const line2 = `Threshold = int(0.00001 * 10**6)`; // input from user
+  const line2 = `Threshold = int(0.01 * 10**6)`; // input from user
   const line3 = `circom = runcircom(Deviation, Threshold) `;
   const line4 = `circomSignal = circom['signal']`;
   const line5 = `circomProof = circom['zkproof']`;
@@ -422,11 +419,5 @@ export function parse(statements: Statement[]): string {
   const pythonLines = pythonCode.lines.join(`\n${TAB}`);
   const pythonVariables = pythonCode.variables.join(`\n${TAB}`);
 
-  // console.log(pythonVariables);
-  // console.log(pythonLines);
-
-  // This Tabs are just because the Python code is inside a if/else statements.
-  // There is this warning in VScode but I thinks it's fine.
-  // https://stackoverflow.com/questions/5685406/inconsistent-use-of-tabs-and-spaces-in-indentation
   return `${pythonVariables}\n${TAB}${pythonLines}`;
 }

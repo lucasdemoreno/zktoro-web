@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
-import { uploadImage } from "../../../serverUtils/uploadImage";
 import { saveStrategyToDB } from "@/db/db";
 import { StrategyToCreate } from "@/types/create";
 

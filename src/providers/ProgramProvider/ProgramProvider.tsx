@@ -175,7 +175,6 @@ function recursiveFind(
   statement: Statement,
   statementId: string
 ): Statement | undefined {
-  console.log("recursiveFind", statement.id, statementId);
   if (statement.id === statementId) {
     return statement;
   }
@@ -240,7 +239,6 @@ export const ProgramProvider = ({ children }: PropsWithChildren) => {
     // If the added statement is inside a nested if else, won't work
     const dropsParents = dropId.split("/");
     const parentId = dropsParents[dropsParents.length - 1];
-    console.log("Drop", dropId, parentId);
     const newStatements = createStatementsFromDropped(statement);
     if (parentId === "main") {
       setStatements(statements.concat(newStatements));
@@ -252,12 +250,10 @@ export const ProgramProvider = ({ children }: PropsWithChildren) => {
       if (parentStatement) return;
       const maybeFound = recursiveFind(s, parentId);
       if (maybeFound) {
-        console.log(maybeFound);
         parentStatement = maybeFound;
       }
     });
 
-    console.log("parentStatement", parentStatement?.id);
     if (
       parentStatement?.type === StatementType.IF_ELSE &&
       parentStatement.data
@@ -278,7 +274,6 @@ export const ProgramProvider = ({ children }: PropsWithChildren) => {
       if (found) return;
       const maybeFound = recursiveFind(s, statement.id);
       if (maybeFound) {
-        console.log(maybeFound);
         found = maybeFound;
       }
     });
@@ -289,9 +284,7 @@ export const ProgramProvider = ({ children }: PropsWithChildren) => {
     setStatements(statements.concat([]));
   };
 
-  useEffect(() => {
-    console.log("Statements", statements);
-  }, [statements]);
+  useEffect(() => {}, [statements]);
 
   return (
     <ProgramContext.Provider

@@ -54,12 +54,9 @@ export function useCreateSetTokenChain(
       });
 
       if (data?.status === "success") {
-        console.log("transactionData settled", data?.status === "success");
         const result = data.logs[0].topics[1];
-        console.log(result);
         if (result) {
           const parsedResult = trim(result);
-          console.log(parsedResult);
           publishDispatch({
             type: "UPDATE",
             payload: {

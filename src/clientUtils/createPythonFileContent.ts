@@ -41,6 +41,11 @@ web3Polygon = Web3(Web3.HTTPProvider(node))
 ${tokenPolyLine}
 ${tokenSepoliaLine}
 
+WETH_Sepolia = "0x3722df51cD13F0393d239761591C296c8733DE15"
+USDC_Sepolia = "0xf607B132550Af445B049DD85Df36A0676332d545"
+WETH_Mumbai = "0xf471d9D3AEe379Ed024D796413503527a3Be12ad"
+USDC_Mumbai = "0x26fE521ae8424902055732ec5dcdbf4AB47cC9a0"
+
 lpAddress = web3Polygon.toChecksumAddress("0x83f585ab2ff318fd563b6d5d5e78ba966830b5bb")
 lpContractPoly = web3Polygon.eth.contract(address = lpAddress, abi = ABI)
 

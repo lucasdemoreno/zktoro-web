@@ -60,7 +60,6 @@ export type PublishStatus = {
   convertToCircom: StepStatus;
   createSetTokenChainA: StepStatus;
   createSetTokenChainB: StepStatus;
-  registerVaultPair: StepStatus;
   createDockerImage: StepStatus;
 };
 
@@ -69,7 +68,6 @@ const INITIAL_PUBLISH_STATUS: PublishStatus = {
   convertToCircom: { status: StepStatusEnum.NOT_STARTED },
   createSetTokenChainA: { status: StepStatusEnum.NOT_STARTED },
   createSetTokenChainB: { status: StepStatusEnum.NOT_STARTED },
-  registerVaultPair: { status: StepStatusEnum.NOT_STARTED },
   createDockerImage: { status: StepStatusEnum.NOT_STARTED },
 };
 

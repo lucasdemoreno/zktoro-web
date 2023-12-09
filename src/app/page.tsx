@@ -25,9 +25,7 @@ export default function Home() {
               zkToro
             </Heading>
             <Heading trim="normal" size="5" className={styles.subtitle}>
-              Empowering Decentralized Cryptocurrency Trading
-              <br />
-              with Zero-Knowledge Proofs
+              “Success spreads, secrets stay”
             </Heading>
           </Box>
         </Flex>
@@ -38,7 +36,7 @@ export default function Home() {
             <Flex direction="column">
               <Box style={{ maxWidth: "600px" }} pb="3">
                 <Text size="8">
-                  Connecting crypto trading with zero-knowledge proofs
+                  Empowering crypto quant trading with Zero-Knowledge Proofs
                 </Text>
               </Box>
               <Box style={{ maxWidth: "400px" }}>

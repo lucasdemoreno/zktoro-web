@@ -1,11 +1,10 @@
-import { Box, Button, Dialog, Flex, Text } from "@radix-ui/themes";
+import { Button, Dialog, Flex, Text } from "@radix-ui/themes";
 import styles from "../Canvas/Canvas.module.css";
 import { useProgram } from "@/providers/ProgramProvider/ProgramProvider";
 import { MouseEventHandler, useCallback, useEffect, useMemo } from "react";
 import {
   ChainToken,
   ComplexExpression,
-  Condition,
   IfElseStatement,
   Statement,
   StatementType,
@@ -30,17 +29,10 @@ import {
   useStrategy,
 } from "@/providers/StrategyProvider/StrategyProvider";
 import { tryConvertToPython } from "@/clientUtils/convertToPython";
-import { tryConvertToCircom } from "@/clientUtils/convertToCircom";
 import { useCreateSetTokenChain } from "@/clientUtils/createSetTokenChain";
-import { tryRegisterVaultPair } from "@/clientUtils/registerVaultPair";
 import { tryCreateDockerImage } from "@/clientUtils/createDockerImage";
-import { useWaitForTransaction } from "wagmi";
 import { useRouter } from "next/navigation";
 import { LoadingSpinner } from "../LoadingSpinner/LoadingSpinner";
-import {
-  MUMBAI_SMART_CONTRACTS,
-  SEPOLIA_SMART_CONTRACTS,
-} from "@/transactions/contracts";
 
 export const SaveSection = () => {
   return (
@@ -179,7 +171,6 @@ const disabledStatuses = new Set([
 ]);
 
 function isLoadingDeploy(publishStatus: PublishStatus): boolean {
-  console.log(publishStatus.createDockerImage);
   return publishStatus.createDockerImage.status === StepStatusEnum.PENDING;
 }
 
@@ -218,12 +209,6 @@ const CreateStrategyModal = () => {
   const { publishStatus, publishDispatch } = useStrategy();
   const { tokenA_chainA, tokenA_chainB, tokenB_chainA, tokenB_chainB } =
     useMemo(() => getTokensAndChains(statements), [statements]);
-  console.log("tokenA_chainA.address", tokenA_chainA.address);
-  console.log("tokenB_chainA.address", tokenB_chainA.address);
-  console.log("setTokenChainA", publishStatus.createSetTokenChainA.result);
-  console.log("tokenA_chainB.address", tokenA_chainB.address);
-  console.log("tokenB_chainB.address", tokenB_chainB.address);
-  console.log("setTokenChainB", publishStatus.createSetTokenChainB.result);
 
   const tokens = [tokenA_chainA, tokenB_chainA, tokenA_chainB, tokenB_chainB];
   const isCreationFinished = useMemo(() => {
@@ -311,7 +296,6 @@ const CreateStrategyModal = () => {
   );
 
   useEffect(() => {
-    console.log(publishStatus);
     if (publishStatus.createDockerImage.status === StepStatusEnum.SUCCESS) {
       // If we created the docker, that means we are done.
       const strategyId = publishStatus.createDockerImage.result;
@@ -334,17 +318,13 @@ const CreateStrategyModal = () => {
           <Flex direction="column" gap="4">
             <Flex align="center" gap="4">
               <Button onClick={onCreateSetTokenChainA}>
-                {`Create SetToken on ${
-                  getChainById(tokenA_chainA.chainId)?.name
-                }`}
+                {`Create Vault on ${getChainById(tokenA_chainA.chainId)?.name}`}
               </Button>
               {getIconFromStatus(publishStatus.createSetTokenChainA.status)}
             </Flex>
             <Flex align="center" gap="4">
               <Button onClick={onCreateSetTokenChainB}>
-                {`Create SetToken on ${
-                  getChainById(tokenA_chainB.chainId)?.name
-                }`}
+                {`Create Vault on ${getChainById(tokenA_chainB.chainId)?.name}`}
               </Button>
               {getIconFromStatus(publishStatus.createSetTokenChainB.status)}
             </Flex>
