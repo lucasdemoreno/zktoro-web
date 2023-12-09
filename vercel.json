@@ -1,3 +1,0 @@
-{
-  "installCommand": "ls -al && ./scripts/install-cli-dependencies.sh && yarn install"
-}
