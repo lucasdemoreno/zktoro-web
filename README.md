@@ -1,6 +1,7 @@
 # zkToro UI
 
-![image](https://github.com/zkToro/zktoro-ui/assets/90379903/c96b5fff-4186-407a-a997-787a9608c5c3)
+![image](https://github.com/user-attachments/assets/4808e5df-e1b6-4b33-8397-d534b841e72c)
+
 
 
 zkToro UI project is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
